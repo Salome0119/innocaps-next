@@ -1,0 +1,34 @@
+schema: spec-driven
+created: 2026-10-15
+
+# Spec: Transición de Sitio Estático a Aplicación Dinámica en Next.js
+
+## 1. Contexto y Propósito
+El proyecto `innocaps-next` actualmente utiliza una configuración de exportación estática (`output: "export"`) enfocada en despliegues estáticos por FTP. El propósito de este cambio es migrar la arquitectura hacia un entorno dinámico basado en Node.js Runtime/SSR en Next.js, preparando la base técnica para integrar en el corto plazo un CMS headless (Payload CMS) y servicios de base de datos en vivo (PostgreSQL en Neon).
+
+## 2. Requerimientos Técnicos
+
+### 2.1 Configuración de Next.js (`next.config.ts`)
+- **Eliminar:** La propiedad `output: "export"`.
+- **Eliminar:** `trailingSlash: true` (permitir el enrutamiento nativo dinámico de Next.js).
+- **Ajustar:** Permitir la optimización nativa de imágenes en servidor de Next.js.
+
+### 2.2 Reestructuración de Skills de OpenCode (`.opencode/skills/`)
+- **Remover / Reemplazar:** Eliminar el guardián estático `static-export`.
+- **Crear Skill Dinámica (`next-dynamic`):**
+  - Permitir de forma explícita Server-Side Rendering (SSR), React Server Components (RSC), API Routes (`app/api/...`), Server Actions (`use server`) y Middlewares.
+  - Mantener las pautas de estilo de código en TypeScript y Tailwind CSS.
+
+### 2.3 Documentación de Despliegue (`MIGRACION.md`)
+- Actualizar o crear la documentación aclarando que el despliegue cambiará de FTP plano a un hosting/servidor con Node.js en tiempo de ejecución (VPS, Railway, Render, Vercel, o contenedor Docker).
+
+## 3. Plan de Verificación (Acceptance Criteria)
+1. **Compilación Local:**
+   - Al ejecutar `npm run build`, la compilación se genera dentro de `.next/` sin solicitar/generar una carpeta estática `./out/`.
+2. **Servidor Local Dinámico:**
+   - La ejecución de `npm run start` inicia correctamente el servidor Node.js sirviendo la aplicación de forma dinámica.
+3. **OpenCode Skills:**
+   - OpenCode reconozca las reglas dinámicas sin bloquear el desarrollo de APIs o Server Actions.
+
+## 4. Próximos Pasos (Siguiente Spec)
+- Integración de `@payloadcms/next` y conexión con la base de datos PostgreSQL en Neon.

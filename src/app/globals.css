@@ -1,0 +1,380 @@
+@import "tailwindcss";
+
+/* Soporte para modo claro */
+@layer utilities {
+  .light {
+    /* Aplicar automáticamente a elementos hijos */
+  }
+  
+  /* Clases que responden al modo claro */
+  .light .bg-slate-950 {
+    @apply bg-slate-50;
+  }
+  
+  .light .bg-slate-900 {
+    @apply bg-slate-100;
+  }
+  
+  .light .bg-slate-800 {
+    @apply bg-slate-200;
+  }
+  
+  .light .text-white {
+    @apply text-slate-900;
+  }
+  
+  .light .text-slate-300 {
+    @apply text-slate-700;
+  }
+  
+  .light .text-slate-400 {
+    @apply text-slate-600;
+  }
+  
+  .light .border-slate-800 {
+    @apply border-slate-300;
+  }
+  
+  .light .border-slate-700 {
+    @apply border-slate-400;
+  }
+  
+  .light .from-slate-950 {
+    @apply from-slate-50;
+  }
+  
+  .light .from-slate-900 {
+    @apply from-slate-100;
+  }
+  
+  .light .to-slate-950 {
+    @apply to-slate-50;
+  }
+  
+  .light .to-slate-900 {
+    @apply to-slate-100;
+  }
+  
+  .light .via-slate-950 {
+    @apply via-slate-100;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   GLITCH TEXT EFFECT — Synthesis In Progress
+   ───────────────────────────────────────────── */
+
+@keyframes glitch-clip {
+  0%   { clip-path: inset(40% 0 61% 0); }
+  20%  { clip-path: inset(92% 0 1% 0); }
+  40%  { clip-path: inset(43% 0 1% 0); }
+  60%  { clip-path: inset(25% 0 58% 0); }
+  80%  { clip-path: inset(54% 0 7% 0); }
+  100% { clip-path: inset(58% 0 43% 0); }
+}
+
+@keyframes glitch-shift {
+  0%   { transform: translate(0); }
+  20%  { transform: translate(-2px, 2px); }
+  40%  { transform: translate(-2px, -2px); }
+  60%  { transform: translate(2px, 2px); }
+  80%  { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+.synthesis-glitch {
+  position: relative;
+}
+
+.synthesis-glitch::before,
+.synthesis-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.synthesis-glitch::before {
+  color: #22d3ee;
+  animation: glitch-clip 3s infinite linear alternate-reverse, glitch-shift 3s infinite linear alternate-reverse;
+  opacity: 0.6;
+}
+
+.synthesis-glitch::after {
+  color: #2dd4bf;
+  animation: glitch-clip 2s infinite linear alternate-reverse, glitch-shift 2s infinite linear alternate-reverse;
+  animation-delay: -1s;
+  opacity: 0.4;
+}
+
+/* ─────────────────────────────────────────────
+   MOBILE-FIRST GLOBAL STYLES
+   ───────────────────────────────────────────── */
+
+/* Better readability on mobile */
+@media (max-width: 768px) {
+  /* Paragraph & body text: taller line-height for readability */
+  p,
+  li,
+  dd {
+    line-height: 1.6;
+  }
+
+  /* Ensure minimum touch target on interactive elements */
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+  }
+
+  /* Prevent horizontal scroll from any rogue element */
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Full-width CTA pattern */
+  .mobile-full-cta {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   PROCESS SECTION — CSS Animations (replaces framer-motion)
+   ───────────────────────────────────────────── */
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-scale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 0.3; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ring-breathe {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(2deg) scale(1.01); }
+  75% { transform: rotate(-2deg) scale(0.99); }
+}
+
+@keyframes breathe-lipid {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+@keyframes bubble-rise {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(-300px); opacity: 0; }
+}
+
+@keyframes cell-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(var(--dx), var(--dy)) scale(1.2); }
+}
+
+@keyframes drop-fall {
+  0% { transform: translateY(0) translateX(var(--dx-start)) scale(1); opacity: 1; }
+  80% { opacity: 0.8; }
+  100% { transform: translateY(280px) translateX(var(--dx-end)) scale(0.1); opacity: 0; }
+}
+
+@keyframes heat-wave {
+  0% { transform: translateX(-100%); opacity: 0; }
+  50% { opacity: 0.6; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes particle-fall {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translateY(220px); opacity: 1; }
+}
+
+@keyframes crystal-spin {
+  0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.3; }
+  50% { transform: rotate(180deg) scale(1.3); opacity: 0.8; }
+}
+
+@keyframes indicator-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes liquid-fill {
+  0%, 100% { height: 20%; }
+  40%, 60% { height: 85%; }
+}
+
+@keyframes powder-fill {
+  0%, 100% { height: 10%; }
+  40%, 60% { height: 25%; }
+}
+
+/* AnimatedBackground blobs — replaces framer-motion */
+@keyframes blob-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+@keyframes blob-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-30px, 30px) scale(0.9); }
+  66% { transform: translate(20px, -30px) scale(1.1); }
+}
+
+/* SolutionsManifesto floating particles */
+@keyframes manifesto-float {
+  0%, 100% { transform: translateY(0); opacity: 0.2; }
+  50% { transform: translateY(-20px); opacity: 0.5; }
+}
+
+/* ─────────────────────────────────────────────
+   ABOUT PAGE — Scroll-Snap Carousel (Mobile)
+   Mobile Stack & LCP Optimization
+   ───────────────────────────────────────────── */
+
+.nosotros-snap-card {
+  scroll-snap-align: start;
+}
+
+/* Hide scrollbar for the science carousel on mobile */
+@media (max-width: 768px) {
+  .nosotros-snap-card::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Director image — priority LCP */
+.director-image {
+  content-visibility: auto;
+}
+
+/* Optimize Lab/Bio stack on mobile */
+@media (max-width: 768px) {
+  [class*="lab-bio"] {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  [class*="lab-bio"] > div {
+    order: 1;
+  }
+  
+  /* Lab section appears first */
+  [class*="lab-bio"] > div:first-child {
+    order: 1;
+  }
+  
+  /* Bio section appears second */
+  [class*="lab-bio"] > div:last-child {
+    order: 2;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   PROCESS TIMELINE — visual blob float
+   ───────────────────────────────────────────── */
+
+@keyframes process-blob-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(10px, -12px) scale(1.08); }
+}
+
+/* ── AlliesMarquee (estilos que estaban en <style> de AlliesMarquee.astro) ── */
+.marquee-track {
+    animation: marquee 30s linear infinite;
+    width: max-content;
+  }
+
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+/* ── BiotechPipeline (estilos que estaban en <style> de BiotechPipeline.astro) ── */
+@keyframes drawPath {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .pipeline-path {
+    stroke-dasharray: 1200;
+    stroke-dashoffset: 1200;
+    animation: drawPath 2s ease-out forwards;
+  }
+
+  .pipeline-node {
+    opacity: 0;
+    animation: fadeInNode 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeInNode {
+    from {
+      opacity: 0;
+      transform: scale(0);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .node-pulse {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      r: 18;
+      opacity: 0.4;
+    }
+    50% {
+      r: 25;
+      opacity: 0.8;
+    }
+  }
+
+  .process-card {
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
