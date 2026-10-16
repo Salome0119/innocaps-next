@@ -14,10 +14,10 @@ La reestructuración transforma `innocaps-next` en una plataforma corporativa B2
 
 ```text
 src/app/
-├── layout.tsx                # Base Layout (Header, Footer, Providers)
-├── page.tsx                  # / Hub Principal (Hero 3D, Flujo 4 etapas, Dualidad)
+├── layout.tsx                # Base Layout ÚNICO (Header global, Footer, Providers)
+├── page.tsx                  # Hub Principal (Hero 3D, 4 brechas, Flujo 4 etapas, Dualidad)
 ├── lab/
-│   └── page.tsx              # /lab (InnoCaps Lab - I+D+i, Servicios, TRL)
+│   └── page.tsx              # /lab (InnoCaps Lab - I+D+i, NanoArsenal, TRL)
 ├── bio/
 │   └── page.tsx              # /bio (InnoCaps Bio - Ingredientes, Matriz de Aplicación)
 ├── nosotros/

@@ -14,7 +14,7 @@ Transformar la aplicación `innocaps-next` en una plataforma corporativa B2B que
 
 ### 1.2. Principios de preservación y calidad
 - **Regla de Cero Eliminación:** Ningún componente existente (`NanoArsenal`, `BiotechPipeline`, `SolutionsPillars`, `SprayDryingSection`, `SynthesisCanvas`, `OrganicNucleus`, `ModelViewer`, etc.) ni estructuras de datos (`sectionsData.js`) pueden ser borrados; deben ser remapeados y reutilizados.
-- **Identidad Visual Corporativa:** Uso estricto de la paleta `slate`, acentos `teal`/`cyan`, glassmorphism y animaciones con `framer-motion`.
+- **Identidad Visual Corporativa y Adaptación Adaptativa:** Se aplica la paleta base `slate`, acentos `teal`/`cyan`, glassmorphism y animaciones con `framer-motion`. Los componentes heredados conservan intacta su estructura y lógica interna, autorizando la adaptación ligera de sus clases de Tailwind para integrarse de forma coherente a esta norma cromática.
 
 ---
 
@@ -27,6 +27,10 @@ La aplicación SHALL transformar su estructura en un esquema App Router de Next.
 - **WHEN** el usuario navega por la plataforma
 - **THEN** el sistema expone las rutas `/` (Hub Principal), `/lab` (Unidad 01 I+D+i), `/bio` (Unidad 02 Escalamiento y WiBio), `/nosotros` (Propósito Corporativo), `/contacto` (Formulario B2B) y `not-found.tsx`, manteniendo un Header con navegación y CTA corporativo, y un Footer institucional.
 
+#### Scenario: Redirección y compatibilidad SEO con URLs legacy
+- **WHEN** un usuario o buscador intenta acceder a las rutas heredadas (`/tecnologia`, `/soluciones`, `/proceso`)
+- **THEN** el sistema aplica redirecciones automáticas permanentes en `next.config.ts` hacia sus equivalentes B2B (`/lab` y `/bio`), previniendo errores 404.
+
 ---
 
 ### Requirement: Reglas Inmutables y Preservación de Código
@@ -38,7 +42,7 @@ El sistema SHALL prohibir estrictamente la eliminación de componentes y datos e
 
 #### Scenario: Coherencia de identidad visual (innocaps-brand)
 - **WHEN** se renderizan los elementos de la interfaz
-- **THEN** se aplica exclusivamente la paleta `slate` (`slate-950`, `slate-900`, `slate-800`), acentos `teal-500`/`teal-400` y `cyan-500`/`cyan-400`, efectos de glassmorphism y animaciones fluidas (`framer-motion`).
+- **THEN** se aplica la paleta `slate` (`slate-950`, `slate-900`, `slate-800`), acentos `teal-500`/`teal-400` y `cyan-500`/`cyan-400`, efectos de glassmorphism y animaciones fluidas (`framer-motion`).
 
 ---
 
@@ -47,7 +51,7 @@ La plataforma SHALL estructurar su narrativa científica en cuatro etapas biotec
 
 #### Scenario: Página de Inicio e Inicio Biotecnológico
 - **WHEN** el usuario accede a `/`
-- **THen** visualiza el Hero con visor 3D (`ModelViewer.tsx`), las 4 brechas del mercado, el flujo estricto (*1. Bioprospección → 2. Encapsulación → 3. Fermentación → 4. Escalamiento*) y el selector dual hacia Lab y Bio.
+- **THEN** visualiza el Hero con visor 3D (`ModelViewer.jsx`), las 4 brechas del mercado, el flujo estricto (*1. Bioprospección → 2. Encapsulación → 3. Fermentación → 4. Escalamiento*) y el selector dual hacia Lab y Bio.
 
 #### Scenario: Páginas de Unidad Lab y Unidad Bio
 - **WHEN** el usuario navega a `/lab` o `/bio`
@@ -60,4 +64,4 @@ El sistema SHALL aislar el uso de `useSearchParams()` en componentes cliente ded
 
 #### Scenario: Carga y preselección segura en formulario de contacto
 - **WHEN** el usuario navega a `/contacto?type=lab`, `?type=bio` o `?type=licensing`
-- **THEN** la página de contacto utiliza un componente cliente secundario (`ContactForm`) protegido por un límite `<Suspense>` con fallback accesible, preseleccionando el asunto comercial de forma dinámica sin romper la compilación estática (`next build`).
+- **THEN** la página de contacto utiliza un componente cliente secundario (`ContactForm`) protegido por un límite `<Suspense>` con fallback accesible, preseleccionando el asunto comercial de forma dinámica sin romper la compilación estática (`npm run build`).
