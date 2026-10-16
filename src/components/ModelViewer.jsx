@@ -1,21 +1,20 @@
 'use client';
 
-import { useRef, useState, useEffect, Suspense, useMemo, useCallback } from 'react';
+import { useRef, useState, useEffect, Suspense, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF, OrbitControls, Float, Center } from '@react-three/drei';
+import { useGLTF, OrbitControls, Float, Center, ContactShadows, Environment } from '@react-three/drei';
+import * as THREE from 'three';
 
 /* ═══════════════════════════════════════════════════════════════
    Detección de capacidad del dispositivo
-   ═══════════════════════════════════════════════════════════════ */
+  ═══════════════════════════════════════════════════════════════ */
 function getDeviceTier() {
   if (typeof window === 'undefined') return 'low';
 
   const isMobile = /Android|iPhone|iPad|iPod|Opera Mini/i.test(navigator.userAgent)
     || window.innerWidth < 768;
 
-  // hardwareConcurrency: núcleos lógicos de CPU
   const cores = navigator.hardwareConcurrency || 2;
-  // deviceMemory: GB de RAM (solo Chromium)
   const memory = navigator.deviceMemory || 2;
 
   if (isMobile || cores <= 4 || memory <= 4) return 'low';
@@ -33,13 +32,34 @@ const DEVICE_TIER = getDeviceTier();
 const MODEL_PATH  = MODEL_PATHS[DEVICE_TIER];
 
 /* ═══════════════════════════════════════════════════════════════
-   Modelo 3D — con control de framerate adaptativo
-   ═══════════════════════════════════════════════════════════════ */
+   Modelo 3D con mejora estética de materiales
+  ═══════════════════════════════════════════════════════════════ */
 function Model({ onLoaded }) {
   const ref = useRef();
   const { scene } = useGLTF(MODEL_PATH);
 
-  useEffect(() => { onLoaded?.(); }, [scene]);
+  // Recorremos la escena al cargar para mejorar los materiales automáticamente
+  useEffect(() => {
+    scene.traverse((child) => {
+      if (child.isMesh) {
+        // Transformamos el material a un estilo físico translúcido/biotecnológico
+        child.material = new THREE.MeshPhysicalMaterial({
+          color: new THREE.Color('#06b6d4'),          // Tono Cyan InnoCaps
+          emissive: new THREE.Color('#0f766e'),     // Tono Teal sutil interno
+          emissiveIntensity: 0.15,
+          roughness: 0.15,                          // Superficie muy pulida
+          metalness: 0.2,                           // Leve toque metálico
+          transmission: DEVICE_TIER === 'low' ? 0 : 0.6, // Efecto vidrio/cristal (desactivado en low para rendimiento)
+          thickness: 1.2,                           // Profundidad de refracción
+          clearcoat: 1.0,                           // Brillo exterior tipo cubierta médica
+          clearcoatRoughness: 0.1,
+          transparent: true,
+          opacity: 0.95,
+        });
+      }
+    });
+    onLoaded?.();
+  }, [scene, onLoaded]);
 
   useFrame(({ clock }) => {
     if (ref.current) {
@@ -51,40 +71,41 @@ function Model({ onLoaded }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Iluminación reducida — basada en tier
-   ═══════════════════════════════════════════════════════════════ */
+   Iluminación profesional y ambiental
+  ═══════════════════════════════════════════════════════════════ */
 function AdaptiveLights() {
   if (DEVICE_TIER === 'low') {
-    // Solo 2 luces en dispositivos bajos
     return (
       <>
-        <ambientLight intensity={4} />
-        <directionalLight position={[3, 3, 4]} intensity={4} color="#ffffff" />
+        <ambientLight intensity={3} />
+        <directionalLight position={[3, 3, 4]} intensity={3} color="#ffffff" />
       </>
     );
   }
 
   return (
     <>
-      <ambientLight intensity={5} />
-      <directionalLight position={[5, 5, 5]} intensity={3} color="#ffffff" />
-      <pointLight position={[-5, -5, -5]} intensity={6} color="#2dd4bf" distance={30} />
-      <spotLight position={[5, 5, -5]} intensity={5} color="#a855f7" angle={0.5} />
-      <pointLight position={[5, 5, 5]} intensity={4} color="#ffffff" distance={25} />
+      <ambientLight intensity={2.5} />
+      <directionalLight position={[5, 5, 5]} intensity={2} color="#ffffff" />
+      {/* Luz de acento Cyan corporativa */}
+      <pointLight position={[-5, -5, -5]} intensity={4} color="#2dd4bf" distance={30} />
+      {/* Luz de contra Violeta/Teal para profundidad */}
+      <spotLight position={[5, 5, -5]} intensity={3} color="#14b8a6" angle={0.5} />
+      {/* Entorno preconfigurado para reflejos realistas sobre los materiales */}
+      <Environment preset="city" />
     </>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════════
    Loader overlay
-   ═══════════════════════════════════════════════════════════════ */
+  ═══════════════════════════════════════════════════════════════ */
 function LoaderOverlay({ progress, visible }) {
   return (
     <div
-      className="absolute inset-0 z-10 flex flex-col items-center justify-center transition-opacity duration-700"
+      className="absolute inset-0 z-10 flex flex-col items-center justify-center transition-opacity duration-700 pointer-events-none"
       style={{
         opacity: visible ? 1 : 0,
-        pointerEvents: visible ? 'auto' : 'none',
       }}
     >
       <span
@@ -120,19 +141,17 @@ function LoaderOverlay({ progress, visible }) {
 
 /* ═══════════════════════════════════════════════════════════════
    Componente principal — Canvas adaptativo
-   ═══════════════════════════════════════════════════════════════ */
+  ═══════════════════════════════════════════════════════════════ */
 export default function ModelViewer() {
   const [progress, setProgress] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [hiding, setHiding] = useState(false);
 
-  /* Configuración adaptativa */
   const canvasConfig = useMemo(() => ({
     dpr: DEVICE_TIER === 'low' ? [1, 1] : [1, 1.5],
     antialias: DEVICE_TIER !== 'low',
   }), []);
 
-  /* Progreso simulado — throttled to reduce re-renders */
   useEffect(() => {
     if (loaded) return;
     let current = 0;
@@ -142,7 +161,7 @@ export default function ModelViewer() {
       const rounded = Math.min(Math.round(current), 99);
       setProgress(rounded);
       if (rounded >= 99) clearInterval(interval);
-    }, 100); // 10fps instead of 60fps
+    }, 100);
     return () => clearInterval(interval);
   }, [loaded]);
 
@@ -176,9 +195,9 @@ export default function ModelViewer() {
         <AdaptiveLights />
 
         <Float
-          speed={0.3}
-          rotationIntensity={0}
-          floatIntensity={DEVICE_TIER === 'low' ? 0 : 0.5}
+          speed={0.4}
+          rotationIntensity={0.2}
+          floatIntensity={DEVICE_TIER === 'low' ? 0 : 0.6}
         >
           <Center>
             <Suspense fallback={null}>
@@ -186,6 +205,17 @@ export default function ModelViewer() {
             </Suspense>
           </Center>
         </Float>
+
+        {/* Sombra suave de contacto para que el modelo no flote en el vacío */}
+        {DEVICE_TIER !== 'low' && (
+          <ContactShadows
+            position={[0, -0.8, 0]}
+            opacity={0.4}
+            scale={6}
+            blur={2.5}
+            far={2}
+          />
+        )}
 
         <OrbitControls
           makeDefault
