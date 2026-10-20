@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcpServers": {
+    "blender": {
+      "command": "node",
+      "args": [
+        "C:/Users/Telefonica/Downloads/innocaps-next/blender-mcp.js"
+      ]
+    }
+  }
+}
