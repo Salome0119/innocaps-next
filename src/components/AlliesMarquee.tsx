@@ -27,9 +27,9 @@ export default function AlliesMarquee() {
   {/* Grid de fondo */}
   <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(20, 184, 166, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(20, 184, 166, 0.4) 1px, transparent 1px)', backgroundSize: '60px 60px' }}></div>
 
-  {/* Título */}
+  {/* Título — panel glassmorphism (legibilidad sobre NanoBackground) */}
   <div className="container mx-auto px-6 relative z-10 mb-16">
-    <div className="text-center">
+    <div className="section-glass mx-auto max-w-3xl text-center rounded-2xl border border-teal-500/20 bg-[#031417]/80 backdrop-blur-[12px] px-6 py-9 md:px-10">
       <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">
         Nuestros <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-400 to-blue-400">Aliados</span>
       </h2>

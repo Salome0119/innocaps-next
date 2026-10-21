@@ -55,8 +55,116 @@
     @apply to-slate-100;
   }
   
-  .light .via-slate-950 {
+.light .via-slate-950 {
     @apply via-slate-100;
+  }
+
+  /* TRL badge colors light mode remaps */
+  .light .bg-emerald-500\/20 { @apply bg-emerald-100/30; }
+  .light .text-emerald-400 { @apply text-emerald-700; }
+  .light .border-emerald-500\/30 { @apply border-emerald-300/40; }
+
+  .light .bg-cyan-500\/20 { @apply bg-cyan-100/30; }
+  .light .text-cyan-400 { @apply text-cyan-700; }
+  .light .border-cyan-500\/30 { @apply border-cyan-300/40; }
+
+  .light .bg-teal-500\/20 { @apply bg-teal-100/30; }
+  .light .text-teal-400 { @apply text-teal-700; }
+  .light .border-teal-500\/30 { @apply border-teal-300/40; }
+
+  .light .bg-amber-500\/20 { @apply bg-amber-100/30; }
+  .light .text-amber-400 { @apply text-amber-700; }
+  .light .border-amber-500\/30 { @apply border-amber-300/40; }
+
+  .light .bg-violet-500\/20 { @apply bg-violet-100/30; }
+  .light .text-violet-400 { @apply text-violet-700; }
+  .light .border-violet-500\/30 { @apply border-violet-300/40; }
+
+/* Microcapsule/Bioreactor canvas bg light fallback — usa variables CSS en componentes, no @apply */
+
+  /* About-canvas variables for light mode */
+  .light .about-canvas {
+    --about-bg: #f8fafc;           /* slate-50 */
+    --about-glow-cyan: #06b6d4;    /* cyan-500 */
+    --about-glow-violet: #8b5cf6;  /* violet-500 */
+    --about-card: rgba(226, 232, 240, 0.7);  /* slate-200/70 */
+    --about-border: rgba(6, 182, 212, 0.15); /* cyan-500/15 */
+    --about-text: #0f172a;         /* slate-900 */
+    --about-text-muted: #475569;   /* slate-600 */
+  }
+}
+
+/* ─────────────────────────────────────────────
+   REDUCED MOTION & SMOOTH SCROLL
+   ───────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   ABOUT CANVAS — Bioluminescent unified background
+   ───────────────────────────────────────────── */
+
+.about-canvas {
+  --about-bg: #03100e;
+  --about-glow-cyan: #00ffff;
+  --about-glow-violet: #8b5cf6;
+  --about-card: rgba(3, 16, 14, 0.7);
+  --about-border: rgba(0, 255, 255, 0.2);
+  --about-text: #f0f0f0;
+  --about-text-muted: #b0b0b0;
+
+  position: relative;
+  isolation: isolate;
+}
+
+.about-canvas::before,
+.about-canvas::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.about-canvas::before {
+  left: -200px;
+  background: radial-gradient(circle, var(--about-glow-cyan) 0%, rgba(6, 182, 212, 0.2) 50%, transparent 70%);
+  mix-blend-mode: screen;
+  animation: blob-1 12s ease-in-out infinite alternate;
+}
+
+.about-canvas::after {
+  right: -200px;
+  background: radial-gradient(circle, var(--about-glow-violet) 0%, rgba(139, 92, 246, 0.2) 50%, transparent 70%);
+  mix-blend-mode: screen;
+  animation: blob-2 15s ease-in-out infinite alternate-reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-canvas *,
+  .about-canvas::before,
+  .about-canvas::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
 
@@ -242,6 +350,22 @@
   66% { transform: translate(20px, -30px) scale(1.1); }
 }
 
+/* About page — bioluminescent interactions */
+@keyframes about-node-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); }
+  50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 40px rgba(0, 255, 255, 0.6), 0 0 80px rgba(139, 92, 246, 0.3); }
+}
+
+@keyframes about-data-flow {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -40; }
+}
+
+@keyframes about-blink {
+  0%, 100% { opacity: 1; text-shadow: 0 0 5px rgba(0, 255, 255, 0.5); }
+  50% { opacity: 0.6; text-shadow: 0 0 20px rgba(0, 255, 255, 0.9), 0 0 40px rgba(139, 92, 246, 0.4); }
+}
+
 /* SolutionsManifesto floating particles */
 @keyframes manifesto-float {
   0%, 100% { transform: translateY(0); opacity: 0.2; }
@@ -378,3 +502,1660 @@
       transform: translateY(0);
     }
   }
+
+  /* ── HUD del visor 3D del pipeline (tarjeta + conector hacia el nodo) ── */
+  @keyframes hudCardIn {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes hudBeacon {
+    0%, 100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.9;
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(2.4);
+      opacity: 0;
+    }
+  }
+
+/* -------------------------------------------------------------------
+   HERO BIO � InnoCaps Bio & WiBio (Unidad 02)
+   Referencia: lockup "InnoCaps" bicolor + tagline en may�sculas,
+   lead con highlight teal, badges outline, pilares en c�rculos con
+   separadores y anillos conc�ntricos tras el visor 3D.
+   Paleta: fondo #03100e � acento teal #2dd4bf � texto #f0f0f0
+   ------------------------------------------------------------------- */
+
+.bio-hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background-color: transparent;
+  color: #f0f0f0;
+}
+
+/* Halos radiales: el fondo real es el canvas de partículas */
+.bio-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 58% 48% at 20% 26%, rgba(45, 212, 191, 0.13), transparent 68%),
+    radial-gradient(ellipse 52% 44% at 80% 74%, rgba(155, 220, 60, 0.09), transparent 70%),
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(3, 20, 23, 0.55), transparent 75%);
+}
+
+.bio-hero-inner {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 3rem;
+  align-items: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 6.5rem 2rem 4rem;
+}
+
+/* -- Columna izquierda: texto sobre tarjeta glassmorphism -- */
+.bio-hero-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 2.25rem 2.25rem 2.5rem;
+  border-radius: 1.75rem;
+  background: rgba(3, 13, 20, 0.85);
+  border: 1px solid rgba(0, 245, 212, 0.25);
+  backdrop-filter: blur(24px) saturate(1.35);
+  box-shadow:
+    0 24px 70px rgba(2, 6, 23, 0.55),
+    0 0 60px -24px rgba(0, 245, 212, 0.35),
+    inset 0 1px 0 rgba(0, 245, 212, 0.14);
+}
+
+/* Lockup: marca + separador + wordmark bicolor + tagline */
+.bio-lockup {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.bio-mark {
+  height: 76px;
+  width: auto;
+  object-fit: contain;
+}
+
+.bio-lockup-divider {
+  width: 2px;
+  align-self: stretch;
+  background: rgba(240, 240, 240, 0.35);
+}
+
+.bio-wordmark {
+  font-size: 4.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.wm-light {
+  color: #f0f0f0;
+}
+
+.wm-accent {
+  color: #00f5d4; /* Cian neón de la marca */
+}
+
+.bio-tagline {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.8;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.tagline-light {
+  color: #f0f0f0;
+}
+
+.tagline-accent {
+  color: #00f5d4;
+}
+
+/* Lead con frase destacada */
+.bio-lead {
+  font-size: 1.3rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: #e6efed;
+  max-width: 34rem;
+}
+
+.bio-lead-accent {
+  color: #00f5d4;
+  font-weight: 500;
+}
+
+/* Badges outline (pills con icono) */
+.bio-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.bio-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.4rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #00f5d4;
+  background-color: rgba(3, 13, 20, 0.72);
+  border: 1px solid rgba(0, 245, 212, 0.35);
+  border-radius: 999px;
+  box-shadow: 0 0 22px -12px rgba(0, 245, 212, 0.5);
+}
+
+.bio-badge svg {
+  color: #00f5d4;
+  flex-shrink: 0;
+}
+
+/* Pilares: c�rculos con icono + etiqueta y separadores verticales */
+.bio-pillars {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.75rem;
+}
+
+.bio-pillar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.bio-pillar-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 245, 212, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00f5d4;
+  box-shadow: 0 0 18px -6px rgba(0, 245, 212, 0.45);
+}
+
+.bio-pillar-label {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: #f0f0f0;
+}
+
+.bio-pillar-divider {
+  width: 1px;
+  height: 64px;
+  background: rgba(45, 212, 191, 0.35);
+}
+
+/* CTA solido turquesa neón */
+.bio-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  padding: 0.85rem 2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #030d14;
+  background-color: #00f5d4;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.bio-cta:hover {
+  background-color: #00e0c2;
+  transform: translateY(-1px);
+  box-shadow: 0 0 20px rgba(0, 245, 212, 0.4);
+}
+
+/* -- Columna derecha: visor 3D + halo -- */
+.bio-hero-model {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 520px;
+}
+
+.bio-hero-model::before {
+  content: "";
+  position: absolute;
+  width: 78%;
+  height: 72%;
+  border-radius: 50%;
+  /* Halo cian detrás de la micela (destello del modelo) */
+  background:
+    radial-gradient(circle, rgba(0, 245, 212, 0.16) 0%, rgba(0, 210, 180, 0.07) 42%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Órbitas y destellos de la nanoesfera (paleta cian/turquesa de /lab) */
+.bio-hero-orbits {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bio-orbit {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 245, 212, 0.22);
+  transform: rotateX(74deg);
+}
+
+.bio-orbit--1 {
+  width: 58%;
+  aspect-ratio: 1 / 0.34;
+  animation: bioOrbit 16s linear infinite;
+}
+
+.bio-orbit--2 {
+  width: 82%;
+  aspect-ratio: 1 / 0.3;
+  border-color: rgba(0, 210, 180, 0.2);
+  animation: bioOrbit 26s linear infinite reverse;
+}
+
+.bio-orbit--3 {
+  width: 44%;
+  aspect-ratio: 1 / 0.42;
+  border-color: rgba(0, 245, 212, 0.32);
+  animation: bioOrbit 12s linear infinite;
+}
+
+.bio-spark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: #00f5d4;
+  box-shadow: 0 0 10px rgba(0, 245, 212, 0.9);
+  animation: bioSpark 3.4s ease-in-out infinite;
+}
+
+.bio-spark--2 {
+  background: #00d2b4;
+  box-shadow: 0 0 10px rgba(0, 210, 180, 0.9);
+  animation-delay: 1.1s;
+}
+
+.bio-spark--3 {
+  animation-delay: 2.2s;
+}
+
+@keyframes bioOrbit {
+  from {
+    rotate: 0deg;
+  }
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes bioSpark {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
+.bio-hero-model > div {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.bio-hero-model > div > canvas {
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+}
+
+/* -- Anillos conc�ntricos decorativos (derecha) -- */
+.bio-hero-rings {
+  position: absolute;
+  z-index: 1;
+  right: -16%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 980px;
+  height: 980px;
+  pointer-events: none;
+}
+
+.bio-hero-rings span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(45, 212, 191, 0.14);
+}
+
+.bio-hero-rings span:nth-child(1) {
+  width: 100%;
+  height: 100%;
+}
+
+.bio-hero-rings span:nth-child(2) {
+  width: 76%;
+  height: 76%;
+}
+
+.bio-hero-rings span:nth-child(3) {
+  width: 52%;
+  height: 52%;
+}
+
+/* Responsive: pila vertical en tablet/m�vil */
+@media (max-width: 1024px) {
+  .bio-hero-inner {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    padding: 7rem 1.25rem 3.5rem;
+  }
+
+  .bio-hero-rings {
+    display: none;
+  }
+
+  .bio-mark {
+    height: 56px;
+  }
+
+  .bio-wordmark {
+    font-size: 3rem;
+  }
+
+  .bio-lead {
+    font-size: 1.05rem;
+    max-width: 100%;
+  }
+
+  .bio-hero-model {
+    height: 340px;
+  }
+}
+
+@media (max-width: 640px) {
+  .bio-lockup {
+    gap: 1rem;
+  }
+
+  .bio-mark {
+    height: 44px;
+  }
+
+  .bio-wordmark {
+    font-size: 2.4rem;
+  }
+
+  .bio-tagline {
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+  }
+
+  .bio-badge {
+    font-size: 0.65rem;
+    padding: 0.55rem 1rem;
+  }
+
+  .bio-pillars {
+    gap: 1rem;
+  }
+
+  .bio-pillar-divider {
+    display: none;
+  }
+}
+
+/* Modo claro: equivalentes legibles de la paleta */
+.light .bio-hero {
+  background-color: #eef4f3;
+  color: #03100e;
+}
+
+/* Modo claro: la tarjeta glass del hero sobre superficie clara */
+.light .bio-hero-text {
+  background: rgba(255, 255, 255, 0.86);
+  border-color: rgba(14, 143, 149, 0.3);
+  box-shadow:
+    0 18px 50px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.light .bio-hero::before {
+  background:
+    radial-gradient(ellipse 58% 48% at 20% 26%, rgba(14, 143, 149, 0.1), transparent 68%),
+    radial-gradient(ellipse 52% 44% at 80% 74%, rgba(132, 204, 22, 0.08), transparent 70%),
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(255, 255, 255, 0.4), transparent 75%);
+}
+
+/* Modo claro: el velo del visor pasa a claro para no ennegrecer la escena */
+.light .bio-hero-model::before {
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.45) 42%, rgba(255, 255, 255, 0) 72%),
+    radial-gradient(circle, rgba(14, 143, 149, 0.12), transparent 68%);
+}
+
+.light .bio-lockup-divider {
+  background: rgba(3, 16, 14, 0.35);
+}
+
+.light .wm-light,
+.light .tagline-light {
+  color: #0b1f1b;
+}
+
+.light .wm-accent,
+.light .tagline-accent {
+  color: #0a8f88;
+}
+
+.light .bio-lead {
+  color: #26332f;
+}
+
+.light .bio-lead-accent {
+  color: #0b7a72;
+}
+
+.light .bio-badge {
+  color: #0a8f88;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(14, 143, 149, 0.5);
+}
+
+.light .bio-badge svg {
+  color: #0a8f88;
+}
+
+.light .bio-pillar-circle {
+  border-color: rgba(14, 143, 149, 0.5);
+  color: #0a8f88;
+  box-shadow: none;
+}
+
+.light .bio-pillar-label {
+  color: #10201d;
+}
+
+.light .bio-pillar-divider {
+  background: rgba(14, 143, 149, 0.4);
+}
+
+.light .bio-cta {
+  background-color: #0a8f88;
+  color: #ffffff;
+}
+
+.light .bio-cta:hover {
+  background-color: #0b7a72;
+  box-shadow: 0 0 20px rgba(10, 143, 136, 0.4);
+}
+
+/* -------------------------------------------------------------------
+   BIO NANO — sistema glassmorphism nanotecnológico de /bio
+   Tarjetas translúcidas sobre el canvas de partículas (NanoBackground)
+   con acentos cian (teal) y verde lima.
+   ------------------------------------------------------------------- */
+
+.bio-glass {
+  position: relative;
+  border-radius: 1.75rem;
+  background: rgba(3, 13, 20, 0.85);
+  border: 1px solid rgba(0, 245, 212, 0.25);
+  backdrop-filter: blur(24px) saturate(1.35);
+  box-shadow:
+    0 24px 70px rgba(2, 6, 23, 0.55),
+    0 0 60px -24px rgba(0, 245, 212, 0.35),
+    inset 0 1px 0 rgba(0, 245, 212, 0.14);
+}
+
+/* Variante con resplandor lima (casos de proceso) */
+.bio-glass--lime {
+  border-color: rgba(155, 220, 60, 0.32);
+  box-shadow:
+    0 24px 70px rgba(2, 6, 23, 0.55),
+    0 0 60px -20px rgba(155, 220, 60, 0.3),
+    inset 0 1px 0 rgba(155, 220, 60, 0.14);
+}
+
+/* Variante con resplandor cian (visores) */
+.bio-glass--cyan {
+  border-color: rgba(0, 245, 212, 0.3);
+  box-shadow:
+    0 24px 70px rgba(2, 6, 23, 0.55),
+    0 0 60px -22px rgba(0, 245, 212, 0.4),
+    inset 0 1px 0 rgba(0, 245, 212, 0.16);
+}
+
+/* Encabezado de sub-módulo: respaldo glass para garantizar contraste
+   sobre el canvas de partículas */
+.bio-subhead {
+  border-radius: 1.5rem;
+  background: rgba(3, 13, 20, 0.85);
+  border: 1px solid rgba(0, 245, 212, 0.22);
+  backdrop-filter: blur(24px) saturate(1.3);
+  box-shadow:
+    0 18px 50px rgba(2, 6, 23, 0.45),
+    0 0 50px -26px rgba(0, 245, 212, 0.35),
+    inset 0 1px 0 rgba(0, 245, 212, 0.12);
+  padding: 1.75rem 1.5rem;
+}
+
+.light .bio-subhead {
+  background: rgba(255, 255, 255, 0.86);
+  border-color: rgba(14, 143, 149, 0.28);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
+}
+
+/* Acentos tipográficos */
+.bio-accent-lime { color: #9bdc3c; }
+.bio-accent-cyan { color: #00f5d4; }
+.bio-accent-teal { color: #00d2b4; }
+
+.light .bio-accent-lime { color: #4d7c0f; }
+.light .bio-accent-cyan { color: #0a8f88; }
+.light .bio-accent-teal { color: #0b7a72; }
+
+/* Badge técnico */
+.bio-tech-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #00f5d4;
+  background: rgba(3, 13, 20, 0.72);
+  border: 1px solid rgba(0, 245, 212, 0.35);
+}
+
+.bio-tech-badge--lime {
+  color: #b6e86b;
+  background: rgba(3, 13, 20, 0.72);
+  border-color: rgba(155, 220, 60, 0.34);
+}
+
+.bio-tech-badge--cyan {
+  color: #00f5d4;
+  background: rgba(3, 13, 20, 0.72);
+  border-color: rgba(0, 245, 212, 0.35);
+}
+
+.light .bio-tech-badge {
+  color: #0a8f88;
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(14, 143, 149, 0.32);
+}
+
+.light .bio-tech-badge--lime {
+  color: #4d7c0f;
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(132, 204, 22, 0.4);
+}
+
+.light .bio-tech-badge--cyan {
+  color: #0a8f88;
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(14, 143, 149, 0.4);
+}
+
+/* Chip flotante (hotspots del visor) */
+.bio-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #94a3b8;
+  background: rgba(3, 13, 20, 0.72);
+  border: 1px solid rgba(0, 245, 212, 0.25);
+  backdrop-filter: blur(10px);
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease,
+    background 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.bio-chip:hover {
+  color: #00f5d4;
+  border-color: rgba(0, 245, 212, 0.5);
+}
+
+.bio-chip--active {
+  color: #00f5d4;
+  border-color: rgba(0, 245, 212, 0.6);
+  background: rgba(0, 245, 212, 0.12);
+  box-shadow: 0 0 18px rgba(0, 245, 212, 0.3);
+}
+
+.light .bio-chip {
+  color: #33413f;
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(14, 143, 149, 0.28);
+}
+
+.light .bio-chip:hover { color: #0a8f88; }
+
+.light .bio-chip--active {
+  color: #0a8f88;
+  background: rgba(14, 143, 149, 0.1);
+  border-color: rgba(14, 143, 149, 0.5);
+  box-shadow: none;
+}
+
+/* Modo claro: glass sobre superficie clara */
+.light .bio-glass,
+.light .bio-glass--lime,
+.light .bio-glass--cyan {
+  background: rgba(255, 255, 255, 0.86);
+  border-color: rgba(14, 143, 149, 0.3);
+  box-shadow:
+    0 18px 50px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+/* -------------------------------------------------------------------
+   HERO INICIO — re-estilizado sobre la referencia Bio & WiBio
+   Mismo sistema visual (.bio-*): lockup bicolor, lead con highlight,
+   badges outline teal, pilares en circulos, CTA solido y anillos.
+   Diferencia clave: fondos TRANSLUCIDOS (glows radiales, sin capas
+   solidas) para que NanoBackground (Three.js + bloom) se vea limpio
+   detras del contenido. Paleta: #03100e -> #2dd4bf -> #f0f0f0
+   ------------------------------------------------------------------- */
+
+.home-hero {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  /* Completamente transparente: sin velo ni bloque que tape NanoBackground */
+  background: transparent;
+  color: #f0f0f0;
+}
+
+/* Glows radiales cian/teal en esquinas (translucidos) */
+.home-hero-glow {
+  position: absolute;
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.home-hero-glow--tl {
+  top: -12%;
+  left: -10%;
+  background: radial-gradient(
+    circle,
+    rgba(45, 212, 191, 0.14) 0%,
+    rgba(0, 255, 255, 0.07) 45%,
+    transparent 70%
+  );
+}
+
+.home-hero-glow--br {
+  bottom: -16%;
+  right: -12%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 255, 255, 0.1) 0%,
+    rgba(45, 212, 191, 0.06) 50%,
+    transparent 72%
+  );
+}
+
+/* Anillos concentricos decorativos (derecha) — misma referencia Bio */
+.home-hero-rings {
+  position: absolute;
+  z-index: 1;
+  right: -16%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 980px;
+  height: 980px;
+  pointer-events: none;
+}
+
+.home-hero-rings span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(45, 212, 191, 0.12);
+}
+
+.home-hero-rings span:nth-child(1) {
+  width: 100%;
+  height: 100%;
+}
+
+.home-hero-rings span:nth-child(2) {
+  width: 76%;
+  height: 76%;
+}
+
+.home-hero-rings span:nth-child(3) {
+  width: 52%;
+  height: 52%;
+}
+
+.home-hero-inner {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 3rem;
+  align-items: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 6.5rem 2rem 4rem;
+}
+
+/* -- Columna izquierda: texto -- */
+.home-hero-text {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.75rem;
+  /* Legibilidad sobre el canvas 3D sin capa oscura: sombra suave en texto */
+  text-shadow: 0 1px 10px rgba(2, 8, 7, 0.55), 0 0 24px rgba(2, 8, 7, 0.35);
+}
+
+.light .home-hero-text {
+  text-shadow: none;
+}
+
+/* Lockup: marca + separador + wordmark bicolor + tagline */
+.home-lockup {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.home-mark {
+  height: 76px;
+  width: auto;
+  object-fit: contain;
+}
+
+.home-lockup-divider {
+  width: 2px;
+  align-self: stretch;
+  background: rgba(240, 240, 240, 0.35);
+}
+
+.home-wordmark {
+  font-size: 4.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.home-wordmark .wm-light {
+  color: #f0f0f0;
+}
+
+.home-wordmark .wm-accent {
+  color: #2dd4bf;
+}
+
+/* Etiqueta "Bio" superpuesta junto al wordmark (texto original) */
+.home-wm-bio {
+  display: inline-block;
+  margin-left: 0.55rem;
+  font-size: 0.32em;
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #2dd4bf;
+  vertical-align: super;
+}
+
+.home-tagline {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.8;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.home-tagline .tagline-light {
+  color: #f0f0f0;
+}
+
+/* Tagline animada (Sostenibilidad | Tecnologia | Innovacion) — mono */
+.home-tagline-row {
+  margin-top: -0.5rem;
+}
+
+.home-tagline-stagger {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.home-tagline-word {
+  color: #2dd4bf;
+}
+
+.home-tagline-sep {
+  color: rgba(240, 240, 240, 0.35);
+}
+
+/* Lead con frase destacada (texto original del Inicio) */
+.home-lead {
+  font-size: 1.15rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: #e6efed;
+  max-width: 36rem;
+}
+
+.home-lead-accent {
+  color: #2dd4bf;
+  font-weight: 500;
+}
+
+/* Badges outline teal (pills con icono vectorial) */
+.home-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.home-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.4rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f0f0f0;
+  background-color: rgba(45, 212, 191, 0.04);
+  border: 1px solid rgba(45, 212, 191, 0.55);
+  border-radius: 999px;
+}
+
+.home-badge svg {
+  color: #2dd4bf;
+  flex-shrink: 0;
+}
+
+/* Pilares: circulos con icono + etiqueta y separadores verticales */
+.home-pillars {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.75rem;
+}
+
+.home-pillar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.home-pillar-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(45, 212, 191, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2dd4bf;
+}
+
+.home-pillar-label {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: #f0f0f0;
+}
+
+.home-pillar-divider {
+  width: 1px;
+  height: 64px;
+  background: rgba(45, 212, 191, 0.35);
+}
+
+/* CTA solido teal (texto original: "Descubre mas") */
+.home-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  padding: 0.85rem 2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #03100e;
+  background-color: #2dd4bf;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.home-cta:hover {
+  background-color: #26bfa8;
+  transform: translateY(-1px);
+}
+
+/* -- Columna derecha: zona de la escena nanotech -- */
+.home-hero-model {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 520px;
+  /* Translucido a proposito: deja ver NanoBackground */
+  background: transparent;
+}
+
+.home-drag-hint {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(240, 240, 240, 0.45);
+  user-select: none;
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* Responsive: pila vertical en tablet/movil */
+@media (max-width: 1024px) {
+  .home-hero-inner {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    padding: 7rem 1.25rem 3.5rem;
+  }
+
+  .home-hero-rings {
+    display: none;
+  }
+
+  .home-mark {
+    height: 56px;
+  }
+
+  .home-wordmark {
+    font-size: 3rem;
+  }
+
+  .home-lead {
+    font-size: 1rem;
+    max-width: 100%;
+  }
+
+  .home-hero-model {
+    height: 340px;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-lockup {
+    gap: 1rem;
+  }
+
+  .home-mark {
+    height: 44px;
+  }
+
+  .home-wordmark {
+    font-size: 2.4rem;
+  }
+
+  .home-tagline {
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+  }
+
+  .home-tagline-stagger {
+    font-size: 0.68rem;
+  }
+
+  .home-badge {
+    font-size: 0.65rem;
+    padding: 0.55rem 1rem;
+  }
+
+  .home-pillars {
+    gap: 1rem;
+  }
+
+  .home-pillar-divider {
+    display: none;
+  }
+}
+
+/* Modo claro: equivalentes legibles de la paleta */
+.light .home-hero {
+  background: transparent;
+  color: #03100e;
+}
+
+.light .home-lockup-divider {
+  background: rgba(3, 16, 14, 0.35);
+}
+
+.light .home-wordmark .wm-light,
+.light .home-tagline .tagline-light {
+  color: #0b1f1b;
+}
+
+.light .home-wordmark .wm-accent,
+.light .home-wm-bio,
+.light .home-tagline-word,
+.light .home-lead-accent {
+  color: #0e8f95;
+}
+
+.light .home-tagline-sep {
+  color: rgba(3, 16, 14, 0.35);
+}
+
+.light .home-lead {
+  color: #26332f;
+}
+
+.light .home-badge {
+  color: #10201d;
+  background-color: rgba(14, 143, 149, 0.06);
+  border-color: rgba(14, 143, 149, 0.5);
+}
+
+.light .home-badge svg {
+  color: #0e8f95;
+}
+
+.light .home-pillar-circle {
+  border-color: rgba(14, 143, 149, 0.55);
+  color: #0e8f95;
+}
+
+.light .home-pillar-label {
+  color: #10201d;
+}
+
+.light .home-pillar-divider {
+  background: rgba(14, 143, 149, 0.4);
+}
+
+.light .home-cta {
+  background-color: #0e8f95;
+  color: #ffffff;
+}
+
+.light .home-cta:hover {
+  background-color: #0a7176;
+}
+
+.light .home-drag-hint {
+  color: rgba(3, 16, 14, 0.5);
+}
+
+.light .home-hero-glow--tl {
+  background: radial-gradient(
+    circle,
+    rgba(14, 143, 149, 0.1) 0%,
+    rgba(14, 143, 149, 0.04) 45%,
+    transparent 70%
+  );
+}
+
+.light .home-hero-glow--br {
+  background: radial-gradient(
+    circle,
+    rgba(14, 143, 149, 0.07) 0%,
+    rgba(14, 143, 149, 0.03) 50%,
+    transparent 72%
+  );
+}
+
+.light .home-hero-rings span {
+  border-color: rgba(14, 143, 149, 0.16);
+}
+
+/* -------------------------------------------------------------------
+   SELECTOR DE UNIDADES � modo claro (.light)
+   Equivalentes legibles de la paleta #03100e / #00ffff de las
+   tarjetas "�Por d�nde empezamos?" (SelectorUnidades.jsx).
+   ------------------------------------------------------------------- */
+
+/* Panel glassmorphism compartido para encabezados de secciones del
+   Inicio (SelectorUnidades, AlliesMarquee). El fondo semitransparente
+   + blur aísla el texto de las particulas 3D sin tapar la escena. */
+.light .section-glass {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(14, 143, 149, 0.35);
+}
+
+.light .selector-unidades {
+  background-color: #eef4f3;
+  color: #03100e;
+}
+
+.light .selector-unidades .text-\[\#00ffff\] {
+  color: #0e8f95;
+}
+
+.light .selector-unidades .text-\[\#b0b0b0\] {
+  color: #55635f;
+}
+
+.light .selector-unidades .text-\[\#d1d8d6\] {
+  color: #33413f;
+}
+
+.light .selector-unidades .text-\[\#f0f0f0\] {
+  color: #10201d;
+}
+
+.light .selector-unidades .bg-\[\#041915\]\/80 {
+  background-color: rgba(255, 255, 255, 0.92);
+}
+
+.light .selector-unidades .border-\[\#00ffff\]\/30 {
+  border-color: #cfded9;
+}
+
+.light .selector-unidades .border-\[\#00ffff\]\/25 {
+  border-color: #cfded9;
+}
+
+.light .selector-unidades .border-\[\#00ffff\]\/15 {
+  border-color: #dbe7e3;
+}
+
+.light .selector-unidades .bg-\[\#00ffff\]\/10 {
+  background-color: rgba(14, 143, 149, 0.1);
+}
+
+.light .selector-unidades .border-\[\#00ffff\]\/20 {
+  border-color: rgba(14, 143, 149, 0.35);
+}
+
+.light .selector-unidades .bg-\[\#00ffff\] {
+  background-color: #0e8f95;
+}
+
+.light .selector-unidades .bg-\[\#00ffff\]:hover {
+  background-color: #0a7176;
+}
+
+.light .selector-unidades .text-\[\#03100e\] {
+  color: #ffffff;
+}
+
+/* Hover de tarjetas en modo claro */
+.light .selector-unidades .group:hover {
+  border-color: rgba(14, 143, 149, 0.55);
+}
+
+.light .selector-unidades .group:hover h3 {
+  color: #0c7c81;
+}
+
+/* -------------------------------------------------------------------
+   DEGRADADO DE ACENTO � cian (#00ffff) ? verde teal de la p�gina
+   (#2dd4bf). Texto .txt-grad, botones y glow del SelectorUnidades.
+   ------------------------------------------------------------------- */
+.txt-grad {
+  background-image: linear-gradient(135deg, #00ffff 0%, #2dd4bf 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* /bio: mismo degradado pero en la paleta cian neón de /lab */
+.bio-hero .txt-grad,
+.bio-wiweb .txt-grad,
+.bio-glass .txt-grad {
+  background-image: linear-gradient(135deg, #00f5d4 0%, #00d2b4 100%);
+}
+
+.light .bio-hero .txt-grad,
+.light .bio-wiweb .txt-grad,
+.light .bio-glass .txt-grad {
+  background-image: linear-gradient(135deg, #0a8f88 0%, #0b7a72 100%);
+}
+
+/* Unificación de acento dentro de /bio: los módulos heredados usaban el
+   cian #00ffff; se remapean a la paleta cian neón de /lab (#00f5d4) */
+.bio-wiweb .text-\[\#00ffff\] { color: #00f5d4; }
+.bio-wiweb .text-\[\#00ffff\]\/70 { color: rgba(0, 245, 212, 0.7); }
+.bio-wiweb .text-\[\#00ffff\]\/80 { color: rgba(0, 245, 212, 0.8); }
+.bio-wiweb .bg-\[\#00ffff\] { background-color: #00f5d4; }
+.bio-wiweb .bg-\[\#00ffff\]\/5 { background-color: rgba(0, 245, 212, 0.05); }
+.bio-wiweb .bg-\[\#00ffff\]\/10 { background-color: rgba(0, 245, 212, 0.1); }
+.bio-wiweb .bg-\[\#00ffff\]\/15 { background-color: rgba(0, 245, 212, 0.12); }
+.bio-wiweb .bg-\[\#00ffff\]\/60 { background-color: rgba(0, 245, 212, 0.6); }
+.bio-wiweb .bg-\[\#00ffff\]\/70 { background-color: rgba(0, 245, 212, 0.7); }
+.bio-wiweb .border-\[\#00ffff\]\/10 { border-color: rgba(0, 245, 212, 0.18); }
+.bio-wiweb .border-\[\#00ffff\]\/20 { border-color: rgba(0, 245, 212, 0.28); }
+.bio-wiweb .border-\[\#00ffff\]\/40 { border-color: rgba(0, 245, 212, 0.45); }
+.bio-wiweb .border-\[\#00ffff\]\/60 { border-color: rgba(0, 245, 212, 0.6); }
+.bio-wiweb .hover\:text-\[\#00ffff\]:hover { color: #00f5d4; }
+.bio-wiweb .hover\:bg-\[\#00ffff\]\/5:hover { background-color: rgba(0, 245, 212, 0.05); }
+.bio-wiweb .hover\:border-\[\#00ffff\]\/40:hover { border-color: rgba(0, 245, 212, 0.45); }
+.bio-wiweb .shadow-\[0_0_15px_rgba\(0\,255\,255\,0\.15\)\],
+.bio-wiweb .shadow-\[0_0_20px_rgba\(0\,255\,255\,0\.15\)\],
+.bio-wiweb .shadow-\[0_0_20px_rgba\(0\,255\,255\,0\.2\)\] {
+  box-shadow: 0 0 20px rgba(0, 245, 212, 0.22);
+}
+
+/* Botones s�lidos del selector ? degradado azul?verde */
+.selector-unidades .bg-\[\#00ffff\] {
+  background-image: linear-gradient(135deg, #00ffff 0%, #2dd4bf 100%);
+}
+
+.selector-unidades .bg-\[\#00ffff\]:hover {
+  background-image: linear-gradient(135deg, #00e6eb 0%, #26bfa8 100%);
+}
+
+/* T�tulo de tarjeta: blanco ? degradado al hacer hover */
+.selector-unidades .group:hover h3 {
+  background-image: linear-gradient(135deg, #00ffff 0%, #2dd4bf 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Borde de tarjeta al hover: punto medio azul?verde */
+.selector-unidades .group:hover {
+  border-color: rgba(22, 236, 223, 0.55);
+}
+
+/* Glow superior de tarjeta: radial mezclando ambos colores */
+.selector-unidades .group > .bg-\[\#00ffff\]\/5 {
+  background-image: radial-gradient(circle, rgba(0, 255, 255, 0.16) 0%, rgba(45, 212, 191, 0.1) 55%, transparent 75%);
+}
+
+/* Modo claro: mismo degradado en tonos oscuros legibles */
+.light .txt-grad {
+  background-image: linear-gradient(135deg, #0e8f95 0%, #0a7176 100%);
+}
+
+.light .selector-unidades .bg-\[\#00ffff\] {
+  background-image: linear-gradient(135deg, #0e8f95 0%, #0a7176 100%);
+}
+
+.light .selector-unidades .bg-\[\#00ffff\]:hover {
+  background-image: linear-gradient(135deg, #0a7176 0%, #085c60 100%);
+}
+
+.light .selector-unidades .group:hover h3 {
+  background-image: none;
+  -webkit-text-fill-color: currentColor;
+  color: #0c7c81;
+}
+
+/* (Halo ::after superior-izquierda eliminado: sangraba en la costura
+   con el hero y duplicaba el blob cian de AnimatedBackground) */
+
+/* -------------------------------------------------------------------
+   BIO & WIBIO — módulo con sub-pestañas (.bio-wiweb)
+   Equivalente .light de la paleta #03100e / #00ffff.
+   ------------------------------------------------------------------- */
+
+.light .bio-wiweb {
+  background-color: #eef4f3;
+  color: #03100e;
+}
+
+.light .bio-wiweb .text-\[\#f0f0f0\] { color: #10201d; }
+.light .bio-wiweb .text-\[\#d1d8d6\] { color: #33413f; }
+.light .bio-wiweb .text-\[\#b0b0b0\] { color: #55635f; }
+.light .bio-wiweb .text-\[\#00ffff\] { color: #0e8f95; }
+.light .bio-wiweb .text-\[\#00ffff\]\/70 { color: rgba(14, 143, 149, 0.75); }
+.light .bio-wiweb .text-\[\#00ffff\]\/80 { color: rgba(14, 143, 149, 0.85); }
+.light .bio-wiweb .text-\[\#03100e\] { color: #ffffff; }
+
+.light .bio-wiweb .hover\:text-\[\#f0f0f0\]\:hover { color: #03100e; }
+
+.light .bio-wiweb .bg-\[\#03100e\]\/80 { background-color: rgba(255, 255, 255, 0.92); }
+.light .bio-wiweb .bg-\[\#03100e\]\/70 { background-color: rgba(255, 255, 255, 0.88); }
+.light .bio-wiweb .bg-\[\#041915\]\/80 { background-color: rgba(255, 255, 255, 0.92); }
+.light .bio-wiweb .bg-\[\#041915\]\/60 { background-color: rgba(255, 255, 255, 0.85); }
+.light .bio-wiweb .bg-\[\#00ffff\]\/5 { background-color: rgba(14, 143, 149, 0.06); }
+.light .bio-wiweb .bg-\[\#00ffff\]\/10 { background-color: rgba(14, 143, 149, 0.1); }
+.light .bio-wiweb .bg-\[\#00ffff\]\/15 { background-color: rgba(14, 143, 149, 0.12); }
+.light .bio-wiweb .bg-\[\#00ffff\]\/60 { background-color: rgba(14, 143, 149, 0.6); }
+.light .bio-wiweb .bg-\[\#00ffff\]\/70 { background-color: rgba(14, 143, 149, 0.7); }
+.light .bio-wiweb .bg-\[\#00ffff\] { background-color: #0e8f95; }
+.light .bio-wiweb .bg-\[\#00ffff\]:hover { background-color: #0a7176; }
+.light .bio-wiweb .hover\:bg-\[\#00e6eb\]\:hover { background-color: #085c60; }
+
+.light .bio-wiweb .border-\[\#00ffff\]\/10 { border-color: rgba(14, 143, 149, 0.18); }
+.light .bio-wiweb .border-\[\#00ffff\]\/20 { border-color: rgba(14, 143, 149, 0.28); }
+.light .bio-wiweb .border-\[\#00ffff\]\/40 { border-color: rgba(14, 143, 149, 0.4); }
+.light .bio-wiweb .border-\[\#00ffff\]\/60 { border-color: rgba(14, 143, 149, 0.55); }
+
+.light .bio-wiweb .from-\[\#03100e\] { @apply from-[#eef4f3]; }
+
+/* -------------------------------------------------------------------
+   NANO-BG — capa de presentación de la home (/), /nosotros y /bio
+   Canvas WebGL fijo (EffectComposer + UnrealBloomPass) detrás del
+   contenido + barra de progreso de scroll + reveals sutiles.
+   Ver: src/components/NanoBackground.jsx y
+   openspec/changes/diseno-nanotech-bloom-home
+   ------------------------------------------------------------------- */
+
+#nano-gl {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  /* La escena es arrastrable (ratón y táctil). El contenido de la home
+     vive en z-10+ y /nosotros en .about-canvas (z-2), por lo que el
+     canvas solo es el destino del puntero en las zonas libres: ni el
+     texto seleccionable ni los enlaces/botones quedan bloqueados. */
+  pointer-events: auto;
+  cursor: grab;
+  mix-blend-mode: screen;
+}
+
+#nano-gl:active {
+  cursor: grabbing;
+}
+
+/* Variante de fondo (/contacto): el canvas es una capa fija de fondo,
+   nunca intercepta el puntero ni el scroll del contenido */
+#nano-gl.nano-gl--background {
+  pointer-events: none;
+  cursor: default;
+}
+
+#nano-gl.nano-gl--background:active {
+  cursor: default;
+}
+
+/* Arrastre activo de la escena: cursor de agarre en todo el documento y
+   sin selección de texto accidental mientras se gira la escena */
+html.nano-drag,
+html.nano-drag * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+/* ── Legibilidad sobre la escena nanotech ──
+   Panel de contraste para contenedores de texto y tarjetas: fondo
+   translúcido sólido + blur robusto (20px) de modo que el modelo 3D,
+   las partículas y el bloom del canvas se difuminen por detrás y no
+   compitan con la lectura. Los bordes suaves fijan la jerarquía
+   escena → panel → tarjeta. */
+.nano-glass {
+  background: rgba(2, 6, 23, 0.72);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow:
+    0 24px 70px rgba(2, 6, 23, 0.55),
+    inset 0 1px 0 rgba(148, 163, 184, 0.08);
+}
+
+.light .nano-glass {
+  background: rgba(248, 250, 252, 0.86);
+  border-color: rgba(15, 23, 42, 0.1);
+  box-shadow:
+    0 24px 60px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Fallback sólido: sin backdrop-filter el fondo se cierra para no
+   dejar texto a medias sobre las partículas */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nano-glass {
+    background: rgba(2, 6, 23, 0.95);
+  }
+  .light .nano-glass {
+    background: rgba(248, 250, 252, 0.97);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .nano-glass {
+    background: rgba(2, 6, 23, 0.94);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* ── Hero de /nosotros: texto sin panel ──
+   El título y los párrafos flotan directamente sobre el campo de
+   partículas 3D (continuidad visual intacta). Un halo oscuro difuso,
+   heredado por todos los hijos, garantiza el contraste sin cajas ni
+   bordes. En modo claro el halo se invierte al blanco. */
+.about-hero-copy {
+  text-shadow:
+    0 1px 12px rgba(2, 6, 23, 0.9),
+    0 0 34px rgba(2, 6, 23, 0.65);
+}
+
+.light .about-hero-copy {
+  text-shadow:
+    0 1px 12px rgba(248, 250, 252, 0.9),
+    0 0 34px rgba(248, 250, 252, 0.65);
+}
+
+/* ── Tarjetas modulares de /nosotros ──
+   Cada bloque es un módulo independiente (hero y "Ciencia aplicada con
+   propósito"): esquinas muy redondeadas (rounded-3xl), borde definido
+   y fondo oscuro translúcido (tono de --about-card al 55%) con
+   blur(12px). La sombra es de ambiente, sin desplazamiento vertical,
+   para que no proyecte ninguna franja oscura bajo la tarjeta: entre
+   módulos solo hay un hueco libre por el que el campo de partículas
+   3D fluye continuo. */
+.about-card {
+  position: relative;
+  z-index: 10;
+  width: min(80rem, calc(100% - 1.5rem));
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 1.75rem;
+  background: rgba(3, 16, 14, 0.55);
+  -webkit-backdrop-filter: blur(12px) saturate(1.3);
+  backdrop-filter: blur(12px) saturate(1.3);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: 0 0 60px rgba(2, 6, 23, 0.45);
+}
+
+@media (min-width: 768px) {
+  .about-card {
+    width: min(80rem, calc(100% - 4rem));
+    border-radius: 2rem;
+  }
+}
+
+/* Hero: margen superior que deja libre la navbar fija (fixed top-0) */
+.about-card--hero {
+  margin-top: 6.5rem;
+}
+
+/* Hueco libre entre módulos: solo margen, sin divisores */
+.about-card + .about-card {
+  margin-top: 2.5rem;
+}
+
+.about-card--tabs {
+  margin-bottom: 3.5rem;
+}
+
+.light .about-card {
+  background: rgba(248, 250, 252, 0.82);
+  border-color: rgba(15, 23, 42, 0.1);
+  box-shadow: 0 0 50px rgba(15, 23, 42, 0.12);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .about-card {
+    background: rgba(2, 6, 23, 0.95);
+  }
+  .light .about-card {
+    background: rgba(248, 250, 252, 0.97);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .about-card {
+    background: rgba(3, 16, 14, 0.92);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Sub-tarjeta interna más oscura: contenido de la pestaña activa */
+.about-panel {
+  border-radius: 1.5rem;
+  background: rgba(2, 6, 12, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.05);
+  padding: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .about-panel {
+    padding: 2rem 2.25rem;
+  }
+}
+
+.light .about-panel {
+  background: rgba(226, 232, 240, 0.75);
+  border-color: rgba(15, 23, 42, 0.08);
+  box-shadow: none;
+}
+
+/* /nosotros: .about-canvas aísla su contexto de apilamiento (isolation:
+   isolate), por lo que sus secciones z-10 quedarían por debajo del
+   canvas fijo. Se eleva el contenedor para que el contenido pise al
+   canvas y el escenario nano se vea por las zonas transparentes,
+   igual que en la home. Solo afecta a /nosotros (única ruta con
+   .about-canvas). */
+.about-canvas {
+  z-index: 2;
+}
+
+.nano-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  z-index: 100;
+  background: linear-gradient(90deg, #2dd4bf, #9bdc3c);
+  pointer-events: none;
+}
+
+/* Reveals: solo ocultan contenido cuando el JS los activa (enhancement
+   progresivo) — sin la clase .nano-js la home se ve completa y estática */
+.nano-js .nano-rv {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.nano-js .nano-rv.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Modo claro: sin canvas de fondo y barra de progreso sutil */
+.light #nano-gl {
+  display: none;
+}
+
+.light .nano-progress {
+  height: 2px;
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nano-js .nano-rv {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

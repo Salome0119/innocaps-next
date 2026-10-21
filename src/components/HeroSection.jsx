@@ -1,208 +1,248 @@
 'use client';
 
-import { AnimatedBackground } from './AnimatedBackground';
+import { Fragment } from 'react';
 import { motion } from 'framer-motion';
-import ModelViewer from './ModelViewer';
-import { useIsMobile } from '../hooks/useIsMobile';
 
 /* ═══════════════════════════════════════════════════════════════════
-   TAGLINE — Staggered word reveal ("Typewriter feel" premium)
+   HERO — Inicio (re-estilizado sobre la referencia Bio & WiBio)
+   Estructura Bio: lockup logo + divider + wordmark bicolor + tagline,
+   lead con highlight, badges outline teal, pilares en círculos y CTA
+   sólido. Contenedores translúcidos: la escena NanoBackground se ve
+   de fondo sin bloques sólidos. Textos y CTAs del Inicio intactos.
+   Estilos en globals.css (.home-hero-*), paleta #03100e / #2dd4bf
    ═══════════════════════════════════════════════════════════════════ */
-const taglineWords = 'Sostenibilidad | Tecnologia | Innovación'.split(' - ');
+
+const taglineWords = 'Sostenibilidad | Tecnología | Innovación'
+  .split('|')
+  .map((word) => word.trim());
 
 function StaggeredTagline({ baseDelay = 0.7, className = '' }) {
   return (
-    <span className={`inline-flex flex-wrap gap-x-2 ${className}`} aria-label="Redefiniendo la materia prima">
+    <span
+      className={`inline-flex flex-wrap items-center gap-x-2 ${className}`}
+      aria-label="Sostenibilidad, Tecnología, Innovación"
+    >
       {taglineWords.map((word, i) => (
-        <motion.span
-          key={i}
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: baseDelay + i * 0.1, duration: 0.45, ease: 'easeOut' }}
-          className="text-teal-400"
-        >
-          {word}
-        </motion.span>
+        <Fragment key={word}>
+          <motion.span
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: baseDelay + i * 0.15, duration: 0.45, ease: 'easeOut' }}
+            className="home-tagline-word"
+          >
+            {word}
+          </motion.span>
+          {i < taglineWords.length - 1 && (
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: baseDelay + i * 0.15 + 0.08, duration: 0.45 }}
+              className="home-tagline-sep"
+              aria-hidden="true"
+            >
+              |
+            </motion.span>
+          )}
+        </Fragment>
       ))}
     </span>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   HERO SECTION — Mobile-first, jerarquía: Título → Esfera → CTA
+   DATOS DEL HERO (contenido original del Inicio — no alterar)
+   ═══════════════════════════════════════════════════════════════════ */
+
+const BADGES = [
+  {
+    id: 'startup',
+    texto: 'Startup científica',
+    icono: (
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M9 3h6" />
+        <path d="M10 3v6.5L4.6 18a2 2 0 0 0 1.7 3h11.4a2 2 0 0 0 1.7-3L14 9.5V3" />
+        <path d="M7.5 15h9" />
+      </svg>
+    ),
+  },
+  {
+    id: 'b2b',
+    texto: 'B2B · Ingredientes',
+    icono: (
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M11 20A7 7 0 0 1 4 13c0-6 7-9 16-9 0 9-3 16-9 16z" />
+        <path d="M4.5 20.5c3.5-5.5 7.5-8.5 11.5-10.5" />
+      </svg>
+    ),
+  },
+  {
+    id: 'sectores',
+    texto: 'Nutrición · Salud · Cosmética',
+    icono: (
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.4-7 10-7 10z" />
+      </svg>
+    ),
+  },
+];
+
+const PILARES = [
+  {
+    id: 'bioprospeccion',
+    label: 'Bioprospección',
+    icono: (
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" />
+        <path d="m20 20-3.5-3.5" />
+        <path d="M8.5 12.5c1.5-2.5 3-4 5.5-5.5" />
+      </svg>
+    ),
+  },
+  {
+    id: 'fermentacion',
+    label: 'Fermentación',
+    icono: (
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M10 3h4" />
+        <path d="M11 3v5l-5 9a3 3 0 0 0 2.6 4.5h6.8A3 3 0 0 0 18 17l-5-9V3" />
+        <path d="M8 15h8" />
+      </svg>
+    ),
+  },
+  {
+    id: 'microencapsulacion',
+    label: 'Microencapsulación',
+    icono: (
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="4.5" />
+        <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════════
+   HERO SECTION — Layout Bio: lockup + lead + badges + pilares + CTA
    ═══════════════════════════════════════════════════════════════════ */
 export default function HeroSection() {
-  const isMobile = useIsMobile();
-
   return (
-    <section className="relative w-full min-h-[100dvh] flex items-center overflow-hidden bg-slate-950 transition-colors duration-300">
+    <section className="home-hero" aria-label="Inicio InnoCaps">
+      {/* ── Glows radiales teal (esquinas) — translúcidos ── */}
+      <div className="home-hero-glow home-hero-glow--tl" aria-hidden="true" />
+      <div className="home-hero-glow home-hero-glow--br" aria-hidden="true" />
 
-      {/* ── Degradado inferior (fade a siguiente sección) ── */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-950 to-transparent z-20 pointer-events-none" />
+      {/* ── Anillos concéntricos decorativos tras la escena ── */}
+      <div className="home-hero-rings" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
 
-      {/* ── FONDOS ── */}
-      <motion.div
-        className="absolute inset-0 z-0"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6, duration: 1.5 }}
-      >
-        <img
-          src="/background.webp"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
-          loading="eager"
-        />
-        <img
-          src="/Agrupar.svg"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/60 to-slate-950/30" />
-      </motion.div>
-
-      {/* Blobs animados (solo desktop) */}
-      {!isMobile && (
-        <div className="absolute inset-0 z-0">
-          <AnimatedBackground />
-        </div>
-      )}
-
-      {/* ════════════════════════════════════════════════════════════
-           CONTENIDO — MOBILE FIRST (flex-col)
-           Orden DOM: 1) Título  2) Esfera  3) CTA
-           ════════════════════════════════════════════════════════════ */}
-      <div className="relative z-10 container mx-auto h-full flex items-center px-5 md:px-6">
-
-        {/* ── MOBILE LAYOUT ── */}
-        <div className="md:hidden flex flex-col items-center w-full gap-6 pt-20 pb-10">
-
-          {/* 1 ▸ MARCA / TÍTULO (lo primero que lee el ojo) */}
-          <div className="text-center space-y-3 w-full order-1">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.7, ease: 'easeOut' }}
-            >
-              <img src="/logotipo.svg" alt="InnocapsLab" className="w-56 mx-auto" />
-            </motion.div>
-
-            <div className="flex justify-center">
-              <StaggeredTagline
-                baseDelay={0.7}
-                className="text-base font-light tracking-wider justify-center"
-              />
+      <div className="home-hero-inner">
+        {/* ── COLUMNA IZQUIERDA — Lockup + texto ── */}
+        <motion.div
+          className="home-hero-text"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+        >
+          {/* 1 ▸ Lockup: logo + divider + wordmark bicolor + tagline */}
+          <div className="home-lockup">
+            <img src="/logo.svg" alt="" className="home-mark" />
+            <span className="home-lockup-divider" aria-hidden="true" />
+            <div>
+              <h1 className="home-wordmark" aria-label="InnoCaps">
+                <span className="wm-light">Inno</span>
+                <span className="wm-accent">Caps</span>
+              </h1>
+              <p className="home-tagline">
+                <span className="tagline-light">Plataforma biotecnológica y de encapsulación</span>
+              </p>
             </div>
           </div>
 
-          {/* 2 ▸ MODELO 3D (Canvas WebGL) */}
+          {/* Tagline animada: Sostenibilidad | Tecnología | Innovación */}
+          <div className="home-tagline-row">
+            <StaggeredTagline baseDelay={0.7} className="home-tagline-stagger" />
+          </div>
+
+          {/* 2 ▸ Lead con highlight (texto original intacto) */}
+          <p className="home-lead">
+            Desarrollamos ingredientes funcionales y aditivos biotecnológicos nanoencapsulados
+            que transforman tus materias primas. Como tu partner estratégico, ofrecemos
+            soluciones de innovación accesibles y escalables para potenciar la capacidad
+            científica y competitividad de tu empresa.
+          </p>
+
+          {/* 3 ▸ Badges outline teal (iconos vectoriales) */}
+          <ul className="home-badges">
+            {BADGES.map((badge, i) => (
+              <motion.li
+                key={badge.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0 + i * 0.1, duration: 0.4, ease: 'easeOut' }}
+                className="home-badge"
+              >
+                {badge.icono}
+                {badge.texto}
+              </motion.li>
+            ))}
+          </ul>
+
+          {/* 4 ▸ Rejilla de pilares: círculos con icono + etiqueta */}
+          <div
+            className="home-pillars"
+            aria-label="Pilares: Bioprospección, Fermentación, Microencapsulación"
+          >
+            {PILARES.map((pilar, i) => (
+              <div key={pilar.id} className="contents">
+                {i > 0 && <span className="home-pillar-divider" aria-hidden="true" />}
+                <div className="home-pillar">
+                  <span className="home-pillar-circle">{pilar.icono}</span>
+                  <span className="home-pillar-label">{pilar.label}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 5 ▸ CTA principal (texto original: "Descubre más") */}
           <motion.div
-            className="relative w-[80vw] max-w-[320px] aspect-square order-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.9, duration: 0.5 }}
+          >
+            <a href="/lab" className="home-cta">
+              Descubre más <span aria-hidden="true">→</span>
+            </a>
+          </motion.div>
+        </motion.div>
+
+        {/* ── COLUMNA DERECHA — escena nanotech (NanoBackground)
+            ocupa toda la ventana; aquí solo vive el indicador de
+            interacción y los anillos decorativos */}
+        <motion.div
+          className="home-hero-model"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.9 }}
+        >
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.0, duration: 0.8 }}
+            transition={{ delay: 2.5, duration: 0.8 }}
+            className="home-drag-hint"
           >
-            {/* Glow halo */}
-            <div className="absolute inset-[-20%] bg-teal-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
-            <ModelViewer />
+            <motion.span
+              animate={{ x: [0, 4, -4, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              ✦
+            </motion.span>
+            <span>Arrastra para explorar</span>
           </motion.div>
-
-          {/* 3 ▸ DESCRIPCIÓN + CTA */}
-          <div className="text-center space-y-5 w-full order-3">
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.4, duration: 0.6 }}
-              className="text-sm text-slate-400 leading-[1.7] px-2 max-w-xs mx-auto"
-            >
-              Ingredientes funcionales nanoencapsulados que transforman tus materias primas.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.8, duration: 0.5 }}
-            >
-              <button className="w-full max-w-xs py-4 bg-teal-500 active:bg-teal-400 text-slate-900 font-bold rounded-2xl text-base transition-colors shadow-lg shadow-teal-500/25">
-                Descubre más
-              </button>
-            </motion.div>
-          </div>
-        </div>
-
-        {/* ── DESKTOP LAYOUT (2 columnas) ── */}
-        <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
-
-          {/* COLUMNA IZQUIERDA — Texto */}
-          <div className="text-left space-y-7 pl-8 lg:pl-16">
-            <motion.div
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
-            >
-              <img src="/logotipo.svg" alt="InnocapsLab" className="w-125 mb-4 mt-12" />
-            </motion.div>
-
-            <StaggeredTagline
-              baseDelay={0.7}
-              className="text-xl lg:text-2xl font-light tracking-wider"
-            />
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 0.7 }}
-              className="text-lg text-slate-300 w-full lg:w-125 leading-relaxed"
-            >
-              Desarrollamos ingredientes funcionales y aditivos biotecnológicos
-              nanoencapsulados que transforman tus materias primas. Como tu
-              partner estratégico, ofrecemos soluciones de innovación accesibles
-              y escalables para potenciar la capacidad científica y
-              competitividad de tu empresa.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.8, duration: 0.5 }}
-            >
-              <button className="px-8 py-4 bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold rounded-full transition-all shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40 hover:scale-105">
-                Descubre más
-              </button>
-            </motion.div>
-          </div>
-
-          {/* COLUMNA DERECHA — Esfera */}
-          <div className="flex justify-center lg:justify-end items-center relative h-full min-h-[450px] lg:min-h-[600px]">
-            {/* Glow halo */}
-            <div className="absolute w-[500px] h-[500px] bg-teal-500/8 rounded-full blur-3xl -z-10" />
-
-            <motion.div
-              className="relative w-full max-w-[280px] md:max-w-lg lg:max-w-2xl xl:max-w-3xl aspect-square z-10"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.0, duration: 0.8 }}
-            >
-              <ModelViewer />
-            </motion.div>
-
-            {/* Indicador de interacción */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 2.5, duration: 0.8 }}
-              className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 text-slate-500 text-xs select-none pointer-events-none z-20"
-            >
-              <motion.span
-                animate={{ x: [0, 4, -4, 0] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                ✦
-              </motion.span>
-              <span>Arrastra para rotar</span>
-            </motion.div>
-          </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

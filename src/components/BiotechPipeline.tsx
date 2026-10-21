@@ -1,9 +1,29 @@
+'use client';
+
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { biotechPipeline } from '@/data/sectionsData';
 
+/* Visor 3D del pipeline: solo se hidrata en cliente (Three.js fuera del SSR) */
+const PipelineScene3D = dynamic(() => import('@/components/PipelineScene3D'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[340px] sm:h-[400px] md:h-[460px] w-full rounded-3xl border border-slate-800 bg-[#031417] flex flex-col items-center justify-center gap-4">
+      <span className="font-mono text-xs uppercase tracking-[0.35em] text-teal-400/80 animate-pulse">
+        Inicializando visor 3D
+      </span>
+      <div className="w-40 h-px rounded-full bg-teal-500/15 overflow-hidden">
+        <div className="h-full w-1/3 rounded-full bg-teal-400 animate-pulse" />
+      </div>
+    </div>
+  ),
+});
 
 export default function BiotechPipeline() {
+  const [active, setActive] = useState(0);
+
   return (
-<section className="relative bg-gradient-to-b from-slate-950 to-slate-900 py-16 md:py-32 overflow-hidden">
+  <section id="pipeline" className="relative bg-gradient-to-b from-slate-950 to-slate-900 py-16 md:py-32 overflow-hidden scroll-mt-28">
   {/* Degradado superior */}
   <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-slate-950 to-transparent z-10 pointer-events-none"></div>
   
@@ -28,129 +48,43 @@ export default function BiotechPipeline() {
 
     {/* Pipeline con imágenes */}
     <div className="max-w-7xl mx-auto">
-      {/* Path SVG conectando los pasos */}
-      <div className="relative mb-16">
-        <svg 
-          viewBox="0 0 1200 200" 
-          className="w-full h-auto hidden md:block"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style={{ stopColor: 'rgb(20, 184, 166)', stopOpacity: '0.8' }} />
-              <stop offset="50%" style={{ stopColor: 'rgb(34, 211, 238)', stopOpacity: '0.8' }} />
-              <stop offset="100%" style={{ stopColor: 'rgb(59, 130, 246)', stopOpacity: '0.8' }} />
-            </linearGradient>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-              <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-          </defs>
-
-          <path
-            id="mainPath"
-            d="M 60 100 L 180 100 L 240 50 L 300 50 L 420 50 L 480 100 L 600 100 L 660 150 L 720 150 L 840 150 L 900 100 L 1020 100 L 1080 100 L 1140 100"
-            fill="none"
-            stroke="url(#pathGradient)"
-            strokeWidth="3"
-            filter="url(#glow)"
-            className="pipeline-path"
-          />
-
-          {biotechPipeline.map((_, index) => {
-            const positions = [
-              { x: 60, y: 100 },
-              { x: 300, y: 50 },
-              { x: 600, y: 100 },
-              { x: 840, y: 150 },
-              { x: 1140, y: 100 }
-            ];
-            const pos = positions[index];
-            return (
-              <g key={index} className="pipeline-node" style={{ animationDelay: `${index * 0.2}s` }}>
-                <circle
-                  cx={pos.x}
-                  cy={pos.y}
-                  r="20"
-                  fill="rgb(20, 184, 166)"
-                  className="node-pulse"
-                />
-                <circle
-                  cx={pos.x}
-                  cy={pos.y}
-                  r="15"
-                  fill="rgb(15, 23, 42)"
-                  stroke="rgb(20, 184, 166)"
-                  strokeWidth="2"
-                />
-                <text
-                  x={pos.x}
-                  y={pos.y + 6}
-                  textAnchor="middle"
-                  fill="rgb(20, 184, 166)"
-                  fontSize="14"
-                  fontWeight="bold"
-                >
-                  {index + 1}
-                </text>
-              </g>
-            );
-          })}
-        </svg>
+      {/* Flujo 3D interactivo: nodos bioluminiscentes + haces de luz */}
+      <div className="relative mb-8 md:mb-12">
+        <PipelineScene3D
+          stages={biotechPipeline}
+          active={active}
+          onSelect={setActive}
+          onHover={setActive}
+        />
       </div>
 
-      {/* Grid de tarjetas con imágenes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        {biotechPipeline.map((stage, index) => (
-          <div 
-            key={index}
-            className="process-card group relative rounded-2xl overflow-hidden border border-slate-800 hover:border-teal-500/50 active:border-teal-500/50 transition-all duration-500 hover:shadow-2xl active:shadow-lg hover:shadow-teal-500/20 hover:scale-105 active:scale-[1.02]"
-            style={{ animationDelay: `${index * 150}ms` }}
-          >
-            {/* Imagen de fondo */}
-            <div className="relative h-48 overflow-hidden">
-              <img 
-                src={stage.image} 
-                alt={stage.stage}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent"></div>
-              
-              {/* Número del paso */}
-              <div className="absolute top-4 left-4 w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-slate-900 font-bold text-lg">{index + 1}</span>
-              </div>
-
-              {/* Ícono */}
-              <div className="absolute top-4 right-4 w-12 h-12 bg-slate-900/80 backdrop-blur-sm rounded-xl flex items-center justify-center border border-teal-500/30">
-                <span className="text-2xl">{stage.icon}</span>
-              </div>
-            </div>
-
-            {/* Contenido */}
-            <div className="relative bg-slate-900/95 backdrop-blur-sm p-6 space-y-3">
-              <h3 className="text-lg font-bold text-white group-hover:text-teal-300 transition-colors duration-300">
-                {stage.stage}
-              </h3>
-              
-              <p className="text-sm text-teal-400 font-medium">
-                {stage.description}
-              </p>
-
-              <div className="h-px bg-gradient-to-r from-transparent via-teal-500/30 to-transparent"></div>
-
-              <p className="text-xs text-slate-400 leading-relaxed">
-                {stage.details}
-              </p>
-
-              {/* Indicador hover */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-cyan-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
-            </div>
-          </div>
-        ))}
+      {/* Selector de etapas sincronizado con el visor 3D */}
+      <div
+        className="mb-14 md:mb-16 flex flex-wrap items-center justify-center gap-2 md:gap-3"
+        role="group"
+        aria-label="Etapas del pipeline"
+      >
+        {biotechPipeline.map((stage, index) => {
+          const isActive = active === index;
+          return (
+            <button
+              key={stage.id}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => setActive(index)}
+              onMouseEnter={() => setActive(index)}
+              onFocus={() => setActive(index)}
+              className={`flex items-center gap-2 rounded-full px-4 py-2.5 text-xs md:text-sm font-semibold transition-all duration-300 ${
+                isActive
+                  ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-900 shadow-lg shadow-teal-500/30 scale-105'
+                  : 'bg-slate-800/60 text-slate-400 border border-slate-700 hover:border-teal-500/40 hover:text-teal-300'
+              }`}
+            >
+              <span className="font-mono text-[10px] tracking-widest md:text-xs">{index + 1}</span>
+              <span>{stage.stage}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* CTA */}
