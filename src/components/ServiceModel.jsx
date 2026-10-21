@@ -232,7 +232,7 @@ export default function ServiceModel() {
             </Link>
             <span className="text-slate-600 text-sm">o</span>
             <Link
-              href="/soluciones"
+              href="/lab/soluciones"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-slate-700/50 bg-slate-900/30 text-slate-400 hover:text-white hover:border-slate-600 font-medium text-sm transition-all duration-300"
             >
               Explorar ecosistemas

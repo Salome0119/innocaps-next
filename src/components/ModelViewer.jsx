@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, Suspense, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF, OrbitControls, Float, Center, ContactShadows, Environment } from '@react-three/drei';
+import { useGLTF, OrbitControls, Float, Center, ContactShadows, Environment, Lightformer } from '@react-three/drei';
 import * as THREE from 'three';
 
 /* ═══════════════════════════════════════════════════════════════
@@ -44,9 +44,9 @@ function Model({ onLoaded }) {
       if (child.isMesh) {
         // Transformamos el material a un estilo físico translúcido/biotecnológico
         child.material = new THREE.MeshPhysicalMaterial({
-          color: new THREE.Color('#06b6d4'),          // Tono Cyan InnoCaps
-          emissive: new THREE.Color('#0f766e'),     // Tono Teal sutil interno
-          emissiveIntensity: 0.15,
+          color: new THREE.Color('#00f5d4'),          // Cian neón de la marca
+          emissive: new THREE.Color('#00d2b4'),       // Turquesa interno
+          emissiveIntensity: 0.22,
           roughness: 0.15,                          // Superficie muy pulida
           metalness: 0.2,                           // Leve toque metálico
           transmission: DEVICE_TIER === 'low' ? 0 : 0.6, // Efecto vidrio/cristal (desactivado en low para rendimiento)
@@ -87,12 +87,19 @@ function AdaptiveLights() {
     <>
       <ambientLight intensity={2.5} />
       <directionalLight position={[5, 5, 5]} intensity={2} color="#ffffff" />
-      {/* Luz de acento Cyan corporativa */}
-      <pointLight position={[-5, -5, -5]} intensity={4} color="#2dd4bf" distance={30} />
-      {/* Luz de contra Violeta/Teal para profundidad */}
-      <spotLight position={[5, 5, -5]} intensity={3} color="#14b8a6" angle={0.5} />
-      {/* Entorno preconfigurado para reflejos realistas sobre los materiales */}
-      <Environment preset="city" />
+      {/* Luz de acento cian neón (orbits y destellos) */}
+      <pointLight position={[-5, -5, -5]} intensity={4} color="#00f5d4" distance={30} />
+      {/* Luz de contra turquesa para profundidad */}
+      <spotLight position={[5, 5, -5]} intensity={3} color="#00d2b4" angle={0.5} />
+      {/* Entorno procedural (sin CDN): reflejos cian/turquesa sobre el vidrio */}
+      <Environment resolution={256}>
+        <group rotation={[-Math.PI / 3, 0, 0]}>
+          <Lightformer form="rect" intensity={2.4} color="#00f5d4" scale={[10, 10, 1]} position={[0, 5, -9]} />
+          <Lightformer form="rect" intensity={1.8} color="#00d2b4" scale={[10, 10, 1]} position={[-5, 1, -1]} rotation-y={Math.PI / 2} />
+          <Lightformer form="ring" intensity={2.2} color="#67e8f9" scale={6} position={[5, 1, 0]} rotation-y={-Math.PI / 2} />
+          <Lightformer form="circle" intensity={0.6} color="#bdf5ef" scale={3} position={[0, -4, 0]} rotation-x={Math.PI / 2} />
+        </group>
+      </Environment>
     </>
   );
 }
@@ -112,19 +119,19 @@ function LoaderOverlay({ progress, visible }) {
         className="font-mono font-extralight tabular-nums leading-none"
         style={{
           fontSize: 'clamp(2.5rem, 8vw, 4.5rem)',
-          color: '#2dd4bf',
+          color: '#00f5d4',
           letterSpacing: '-0.02em',
         }}
       >
         {progress}%
       </span>
 
-      <div className="w-24 h-px mt-3 rounded-full overflow-hidden" style={{ background: 'rgba(45,212,191,0.15)' }}>
+      <div className="w-24 h-px mt-3 rounded-full overflow-hidden" style={{ background: 'rgba(0,245,212,0.15)' }}>
         <div
           className="h-full rounded-full transition-[width] duration-300 ease-out"
           style={{
             width: `${progress}%`,
-            background: '#2dd4bf',
+            background: '#00f5d4',
           }}
         />
       </div>

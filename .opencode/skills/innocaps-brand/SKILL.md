@@ -42,7 +42,7 @@ Regla de highlights: **cifras y términos duros** (ej. `20-900 nm`) se pintan en
 - Íconos de secciones de datos: **emoji** en `sectionsData.js` (🔬 🧬 ❄️ 💧 🫧 …), no iconos SVG, para textos de proceso/tecnología.
 - Términos técnicos envueltos en `<GlossaryTooltip term="...">text</GlossaryTooltip>`.
 - Efecto firma: glitch de texto en pantallas de síntesis/404 (`.synthesis-glitch`).
-- Navegación principal: `/`, `/soluciones`, `/tecnologia`, `/proceso`, `/nosotros`, `/contacto` — CTA siempre a `/contacto`.
+- Navegación principal: `/` (inicio: hero, selector y carrusel Aliados; menú con "Nosotros" → `/nosotros`), `/nosotros` (vista propia con AboutPage), `/lab` y `/lab/{tecnologia,soluciones,proceso}` (estrategia Lab — solo módulos de I+D+i), `/bio` (estrategia Bio & WiBio, mínimo por ahora), `/contacto` — CTA siempre a `/contacto`; URLs legacy `/tecnologia`, `/soluciones`, `/proceso` redirigen 308 a `/lab/*` y `/lab/nosotros` redirige 308 a `/nosotros`.
 
 ## Tono de voz
 

@@ -58,27 +58,32 @@ export default function GlossaryTooltip({ term, children }) {
       </span>
       <AnimatePresence>
         {show && (
-          <motion.div
+          /* El tooltip se construye con <span> (contenido de phrasing)
+             para poder convivir dentro de etiquetas <p> sin generar HTML
+             inválido ni errores de hidratación. Al ser `absolute`, el
+             navegador lo convierte a bloque; los hijos internos usan
+             `block` para conservar la maquetación. */
+          <motion.span
             initial={{ opacity: 0, y: position === 'top' ? 8 : -8, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: position === 'top' ? 8 : -8, scale: 0.96 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className={`absolute z-[100] left-1/2 -translate-x-1/2 w-72 p-4 rounded-xl bg-slate-800/95 backdrop-blur-xl border border-teal-500/20 shadow-2xl shadow-black/50 pointer-events-none ${
+            className={`absolute z-[100] left-1/2 -translate-x-1/2 block w-72 p-4 rounded-xl bg-slate-800/95 backdrop-blur-xl border border-teal-500/20 shadow-2xl shadow-black/50 pointer-events-none ${
               position === 'top' ? 'bottom-full mb-3' : 'top-full mt-3'
             }`}
           >
-            <p className="text-[10px] font-bold text-teal-400 mb-1.5 uppercase tracking-[0.2em]">
+            <span className="block text-[10px] font-bold text-teal-400 mb-1.5 uppercase tracking-[0.2em]">
               {term}
-            </p>
-            <p className="text-[13px] text-slate-300 leading-relaxed">{definition}</p>
-            <div
-              className={`absolute left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-800/95 rotate-45 border-teal-500/20 ${
+            </span>
+            <span className="block text-[13px] text-slate-300 leading-relaxed">{definition}</span>
+            <span
+              className={`absolute left-1/2 -translate-x-1/2 block w-2 h-2 bg-slate-800/95 rotate-45 border-teal-500/20 ${
                 position === 'top'
                   ? 'top-full -mt-1 border-r border-b'
                   : 'bottom-full -mb-1 border-l border-t'
               }`}
             />
-          </motion.div>
+          </motion.span>
         )}
       </AnimatePresence>
     </span>

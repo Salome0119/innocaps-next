@@ -13,10 +13,38 @@ const ASUNTO_POR_TIPO: Record<Via, string> = {
   licensing: "Licensing y alianzas tecnológicas",
 };
 
-const VIAS: { id: Via; etiqueta: string }[] = [
-  { id: "lab", etiqueta: "Lab" },
-  { id: "bio", etiqueta: "Bio" },
-  { id: "licensing", etiqueta: "Licensing" },
+const VIAS: { id: Via; etiqueta: string; icono: React.ReactNode }[] = [
+  {
+    id: "lab",
+    etiqueta: "Lab",
+    icono: (
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M9 3h6" />
+        <path d="M10 3v6.5L4.6 18a2 2 0 0 0 1.7 3h11.4a2 2 0 0 0 1.7-3L14 9.5V3" />
+        <path d="M7.5 15h9" />
+      </svg>
+    ),
+  },
+  {
+    id: "bio",
+    etiqueta: "Bio",
+    icono: (
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M11 20A7 7 0 0 1 4 13c0-6 7-9 16-9 0 9-3 16-9 16z" />
+        <path d="M4.5 20.5c3.5-5.5 7.5-8.5 11.5-10.5" />
+      </svg>
+    ),
+  },
+  {
+    id: "licensing",
+    etiqueta: "Licensing",
+    icono: (
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 6v6l4 2" />
+      </svg>
+    ),
+  },
 ];
 
 const SECTORES: string[] = [
@@ -39,7 +67,7 @@ const CAMPOS_INICIALES = {
 };
 
 const claseCampo =
-  "w-full rounded-xl bg-slate-950 border border-slate-700 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition-colors focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20";
+  "w-full rounded-xl bg-[#051e22]/60 border border-slate-700/50 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition-all focus:border-teal-400 focus:ring-1 focus:ring-teal-400 focus:bg-[#051e22]/80";
 
 const claseEtiqueta =
   "block mb-2 text-xs font-mono uppercase tracking-[0.18em] text-slate-400";
@@ -55,8 +83,6 @@ export default function ContactForm() {
   const tipoEnUrl = searchParams.get("type");
   const viaPreseleccionada: Via | null = esVia(tipoEnUrl) ? tipoEnUrl : null;
 
-  // El asunto visible se deriva del estado local y de la URL:
-  // así reacciona a cambios de ?type= sin efectos de sincronización.
   const [asuntoSel, setAsuntoSel] = useState<Via | null>(null);
   const [campos, setCampos] = useState(CAMPOS_INICIALES);
   const [estado, setEstado] = useState<EstadoEnvio>("listo");
@@ -88,7 +114,6 @@ export default function ContactForm() {
     evento.preventDefault();
     if (estado === "enviando") return;
     setEstado("enviando");
-    // Envío simulado: se reemplazará por Server Action / API al integrar el CMS.
     await new Promise((resolver) => setTimeout(resolver, 900));
     setEstado("recibido");
   }
@@ -105,11 +130,11 @@ export default function ContactForm() {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="relative w-full"
     >
-      <div className="relative rounded-2xl border border-slate-700 bg-slate-900 backdrop-blur-xl p-6 sm:p-8 shadow-[0_0_60px_-15px_rgba(34,211,238,0.18)] overflow-hidden">
-        {/* Capa glass decorativa */}
+      <div className="section-glass relative z-10 rounded-2xl border border-teal-500/30 bg-[#031417]/85 backdrop-blur-[16px] p-6 sm:p-8 shadow-[0_0_80px_-20px_rgba(45,212,191,0.25),0_0_40px_-10px_rgba(20,184,166,0.15)] overflow-hidden">
+        {/* Capa glass decorativa superior */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-teal-500/10 via-transparent to-cyan-500/10"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-teal-500/10 via-transparent to-lime-500/5"
         />
 
         {estado === "recibido" ? (
@@ -162,7 +187,7 @@ export default function ContactForm() {
             aria-label="Formulario de contacto B2B"
             className="relative z-10 space-y-6"
           >
-            {/* ── Selector de vía comercial ── */}
+            {/* ── Selector de vía comercial (cápsulas brillantes) ── */}
             <fieldset>
               <legend className={claseEtiqueta}>Vía de contacto</legend>
               <div className="grid grid-cols-3 gap-2">
@@ -174,13 +199,19 @@ export default function ContactForm() {
                       type="button"
                       onClick={() => seleccionarVia(via.id)}
                       aria-pressed={activa}
-                      className={`rounded-xl border px-3 py-3 text-xs sm:text-sm font-bold transition-all ${
+                      className={`relative flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-xs sm:text-sm font-bold transition-all overflow-hidden ${
                         activa
-                          ? "border-teal-500 bg-teal-500 text-slate-950 shadow-[0_0_20px_-6px_rgba(20,184,166,0.6)]"
-                          : "border-slate-700 bg-slate-950 text-slate-300 hover:border-teal-500/60 hover:text-teal-400"
+                          ? "border-teal-500 bg-gradient-to-br from-teal-500/30 to-teal-500/10 text-white shadow-[0_0_20px_-4px_rgba(20,184,166,0.7)]"
+                          : "border-slate-700/50 bg-[#051e22]/60 text-slate-300 hover:border-teal-500/60 hover:text-teal-400 hover:bg-[#051e22]/80"
                       }`}
                     >
-                      {via.etiqueta}
+                      <span className={`relative transition-transform ${activa ? "text-white" : "text-slate-300"}`}>
+                        {via.icono}
+                      </span>
+                      <span className="relative">{via.etiqueta}</span>
+                      {activa && (
+                        <span className="absolute inset-0 bg-gradient-to-r from-teal-500/20 to-lime-500/10 animate-pulse pointer-events-none" />
+                      )}
                     </button>
                   );
                 })}
@@ -327,19 +358,25 @@ export default function ContactForm() {
               <button
                 type="submit"
                 disabled={estado === "enviando"}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-teal-500 px-8 py-3.5 text-sm font-bold text-slate-950 transition-all hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+                className="relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-teal-500 via-teal-400 to-cyan-400 px-8 py-3.5 text-sm font-bold text-slate-950 transition-all hover:from-teal-400 hover:via-cyan-400 hover:to-lime-400 hover:shadow-[0_0_30px_-5px_rgba(45,212,191,0.8)] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
               >
-                {estado === "enviando" ? (
-                  <>
-                    <span
-                      aria-hidden="true"
-                      className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950/30 border-t-slate-950"
-                    />
-                    Enviando…
-                  </>
-                ) : (
-                  "Enviar consulta B2B"
-                )}
+                <span className="relative z-10">
+                  {estado === "enviando" ? (
+                    <>
+                      <span
+                        aria-hidden="true"
+                        className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950/30 border-t-slate-950"
+                      />
+                      Enviando…
+                    </>
+                  ) : (
+                    "Enviar consulta B2B"
+                  )}
+                </span>
+                <span
+                  className="absolute inset-0 bg-gradient-to-r from-cyan-500/30 to-lime-500/30 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none"
+                  aria-hidden="true"
+                />
               </button>
 
               <span className="text-center text-[11px] font-mono text-slate-500 sm:text-right">

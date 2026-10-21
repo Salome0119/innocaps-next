@@ -36,7 +36,7 @@ As of the dynamic transition, `next.config.ts` has no `output: "export"`, no `tr
 
 - `src/app/<route>/page.tsx` — thin pages that set `metadata` (add one when creating a page); real content lives in `src/components/*`.
 - `@/*` path alias → `src/*`.
-- Components are mixed `.jsx`/`.tsx`. Every component is a client component (`'use client'`) except `AlliesMarquee.tsx` and `BiotechPipeline.tsx` (server components). New heavy below-the-fold sections can use `next/dynamic` (see MIGRACION.md on home-page JS weight).
+- Components are mixed `.jsx`/`.tsx`. Every component is a client component (`'use client'`) except `AlliesMarquee.tsx` (server component). New heavy below-the-fold sections can use `next/dynamic` (see MIGRACION.md on home-page JS weight).
 - Tailwind v4 is loaded via the `turbopack.rules` entry in `next.config.ts` — do **not** add a PostCSS or Tailwind config file. Global styles and utility overrides live in `src/app/globals.css`; legacy Astro `<style>` blocks were appended at its end.
 - Dark by default; light mode is a `.light` class on `<html>` that overrides Tailwind utility classes by name (see top of `globals.css`, toggled in `Header.jsx`).
 - UI copy and code comments are in Spanish; `lang="es"` in the root layout.

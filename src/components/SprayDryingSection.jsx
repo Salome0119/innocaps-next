@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import GlossaryTooltip from './GlossaryTooltip';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -20,6 +20,16 @@ const stagger = (d = 0) => ({
   transition: { ...fadeUp.transition, delay: d },
 });
 
+/* PRNG determinista (mulberry32): `Math.random()` dentro del render
+   devuelve valores distintos en servidor y cliente, lo que provoca
+   errores de hidratación. Con semilla fija ambos renders coinciden. */
+function seededRandom(seed) {
+  let t = (seed + 0x6d2b79f5) | 0;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
 /* ═══════════════════════════════════
    SPRAY DRYER DIAGRAM (SVG)
    ═══════════════════════════════════ */
@@ -32,6 +42,21 @@ function SprayDryerDiagram({ progress, particleCount = 20 }) {
 
   /* Clamp to avoid unnecessary re-renders */
   const effectiveParticles = Math.min(particleCount, 12);
+
+  /* Partículas deterministas: se calculan una sola vez con semilla fija
+     para que servidor y cliente generen exactamente el mismo HTML */
+  const particles = useMemo(() => {
+    const rnd = (i, salt) => seededRandom(i * 7919 + salt * 104729);
+    return Array.from({ length: effectiveParticles }, (_, i) => ({
+      left: 30 + rnd(i, 1) * 40, // porcentaje
+      delay: rnd(i, 2) * 3,
+      duration: 2 + rnd(i, 3) * 2,
+      size: 2 + rnd(i, 4) * 3,
+      frozenY: 200 + rnd(i, 5) * 80,
+      activeY: 250 + rnd(i, 6) * 50,
+      driftX: (rnd(i, 7) - 0.5) * 40,
+    }));
+  }, [effectiveParticles]);
 
   return (
     <div className="relative w-full max-w-md mx-auto">
@@ -118,46 +143,39 @@ function SprayDryerDiagram({ progress, particleCount = 20 }) {
 
       {/* Animated particles inside dryer */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {Array.from({ length: effectiveParticles }).map((_, i) => {
-          const left = 30 + Math.random() * 40; // percentage
-          const delay = Math.random() * 3;
-          const duration = 2 + Math.random() * 2;
-          const size = 2 + Math.random() * 3;
-
-          return (
-            <motion.div
-              key={`particle-${i}`}
-              className="absolute rounded-full"
-              style={{
-                left: `${left}%`,
-                top: '18%',
-                width: size,
-                height: size,
-                backgroundColor: particlesFrozen ? '#14b8a6' : '#f97316',
-              }}
-              animate={
-                particlesFrozen
-                  ? {
-                      y: [0, 200 + Math.random() * 80],
-                      opacity: [0.8, 0.6],
-                      scale: [1, 0.8],
-                    }
-                  : {
-                      y: [0, 250 + Math.random() * 50],
-                      x: [0, (Math.random() - 0.5) * 40],
-                      opacity: [0, 0.8, 0.5, 0],
-                      scale: [0.5, 1, 0.8, 0.3],
-                    }
-              }
-              transition={{
-                duration: particlesFrozen ? duration * 1.5 : duration,
-                repeat: Infinity,
-                delay,
-                ease: particlesFrozen ? 'easeOut' : 'easeInOut',
-              }}
-            />
-          );
-        })}
+        {particles.map((p, i) => (
+          <motion.div
+            key={`particle-${i}`}
+            className="absolute rounded-full"
+            style={{
+              left: `${p.left}%`,
+              top: '18%',
+              width: p.size,
+              height: p.size,
+              backgroundColor: particlesFrozen ? '#14b8a6' : '#f97316',
+            }}
+            animate={
+              particlesFrozen
+                ? {
+                    y: [0, p.frozenY],
+                    opacity: [0.8, 0.6],
+                    scale: [1, 0.8],
+                  }
+                : {
+                    y: [0, p.activeY],
+                    x: [0, p.driftX],
+                    opacity: [0, 0.8, 0.5, 0],
+                    scale: [0.5, 1, 0.8, 0.3],
+                  }
+            }
+            transition={{
+              duration: particlesFrozen ? p.duration * 1.5 : p.duration,
+              repeat: Infinity,
+              delay: p.delay,
+              ease: particlesFrozen ? 'easeOut' : 'easeInOut',
+            }}
+          />
+        ))}
       </div>
     </div>
   );
@@ -356,8 +374,10 @@ export default function SprayDryingSection() {
                     </div>
                   </div>
 
-                  <p className="text-slate-300 text-sm leading-[1.6] mb-2">{cp.action}</p>
-                  <p className="text-slate-500 text-sm leading-[1.6]">{cp.detail}</p>
+                  {/* <div> y no <p>: el contenido puede incluir GlossaryTooltip
+                      (popover posicionado) y un <p> no admite bloques internos */}
+                  <div className="text-slate-300 text-sm leading-[1.6] mb-2">{cp.action}</div>
+                  <div className="text-slate-500 text-sm leading-[1.6]">{cp.detail}</div>
 
                   {/* Temp gauge for inlet/outlet */}
                   {cp.number !== '03' && (
@@ -396,18 +416,18 @@ export default function SprayDryingSection() {
                       key={`fluid-${i}`}
                       className="absolute w-1.5 h-1.5 rounded-full bg-orange-400"
                       animate={{
-                        x: [0, (Math.random() - 0.5) * 30],
-                        y: [0, (Math.random() - 0.5) * 30],
+                        x: [0, (seededRandom(i * 31 + 7) - 0.5) * 30],
+                        y: [0, (seededRandom(i * 31 + 13) - 0.5) * 30],
                       }}
                       transition={{
-                        duration: 1 + Math.random(),
+                        duration: 1 + seededRandom(i * 31 + 19),
                         repeat: Infinity,
                         repeatType: 'reverse',
                         delay: i * 0.15,
                       }}
                       style={{
-                        left: `${20 + Math.random() * 60}%`,
-                        top: `${20 + Math.random() * 60}%`,
+                        left: `${20 + seededRandom(i * 31 + 23) * 60}%`,
+                        top: `${20 + seededRandom(i * 31 + 29) * 60}%`,
                       }}
                     />
                   ))}
