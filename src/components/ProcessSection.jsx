@@ -1,7 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { useState, useMemo, memo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, memo } from 'react';
 import { processSteps } from '../data/sectionsData';
 
 // Componente de animación molecular — CSS animations (no framer-motion per-particle)
@@ -354,6 +354,7 @@ if (state === 'nanoencapsulation') {
 
 export default function ProcessSection() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const activeStep = processSteps[activeIndex] ?? processSteps[0];
 
   const getStateForIndex = (index) => {
     if (index === 0) return 'nanoencapsulation';
@@ -422,176 +423,164 @@ export default function ProcessSection() {
           </motion.p>
         </div>
 
-        {/* ── MOBILE: Vertical timeline with full cards ── */}
-        <div className="md:hidden">
-          <div className="relative">
-            {/* Vertical line */}
-            <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-teal-500/60 via-cyan-500/40 to-blue-500/20" />
-
-            <div className="space-y-8">
-              {processSteps.map((step, index) => (
-                <motion.div
-                  key={step.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-40px' }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="relative pl-14"
-                >
-                  {/* Timeline node */}
-                  <div className="absolute left-3 top-5 w-7 h-7 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/30 z-10">
-                    <span className="text-slate-900 text-xs font-bold">{step.id}</span>
-                  </div>
-
-                  {/* Card */}
-                  <div className="bg-slate-900/70 border border-slate-700/50 rounded-2xl p-5 space-y-3">
-                    {/* Header row */}
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{step.icon}</span>
-                      <div>
-                        <p className="text-[10px] text-teal-400 font-bold tracking-widest uppercase">Paso {step.id}</p>
-                        <h3 className="text-lg font-bold text-white leading-tight">{step.title}</h3>
-                      </div>
-                    </div>
-
-                    {/* Subtitle */}
-                    <h4 className="text-sm font-semibold bg-gradient-to-r from-cyan-300 to-teal-300 bg-clip-text text-transparent">
-                      {step.subtitle}
-                    </h4>
-
-                    {/* Description */}
-                    <p className="text-sm text-slate-300 leading-[1.6]">{step.description}</p>
-
-                    {/* Benefits */}
-                    {step.benefits && (
-                      <div className="grid grid-cols-1 gap-2 pt-2">
-                        {step.benefits.map((benefit, i) => (
-                          <div key={i} className="flex items-start gap-2.5 bg-slate-800/50 rounded-xl p-3">
-                            <div className="w-1.5 h-1.5 mt-1.5 bg-teal-400 rounded-full flex-shrink-0" />
-                            <div>
-                              <p className="text-teal-300 font-semibold text-xs">{benefit.label}</p>
-                              <p className="text-slate-400 text-xs leading-[1.5]">{benefit.detail}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+        {/* ── SELECTOR DE PESTAÑAS (Glassmorphism cian neón) ── */}
+        <div
+          className="mb-10 md:mb-14 flex flex-wrap items-center justify-center gap-3 md:gap-4"
+          role="tablist"
+          aria-label="Pilares tecnológicos"
+        >
+          {processSteps.map((step, index) => {
+            const isActive = activeIndex === index;
+            return (
+              <motion.button
+                key={step.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveIndex(index)}
+                onMouseEnter={() => setActiveIndex(index)}
+                onFocus={() => setActiveIndex(index)}
+                className={`relative flex items-center gap-2.5 rounded-full px-5 py-3 md:px-7 md:py-3.5 text-sm md:text-base font-semibold transition-all duration-300 ${
+                  isActive
+                    ? 'bg-gradient-to-r from-[#00f5d4] to-cyan-400 text-[#030d14] shadow-[0_0_28px_rgba(0,245,212,0.45)]'
+                    : 'border border-[#00f5d4]/25 bg-[#030d14]/70 text-slate-300 backdrop-blur-xl hover:border-[#00f5d4]/50 hover:text-white hover:shadow-[0_0_18px_rgba(0,245,212,0.18)]'
+                }`}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+              >
+                <span className="text-lg leading-none">{step.icon}</span>
+                <span>{step.title}</span>
+              </motion.button>
+            );
+          })}
         </div>
 
-        {/* ── DESKTOP: Original accordion ── */}
-        <div className="hidden md:block">
-          <>
-            {/* Tabs de navegación */}
-            <div className="flex justify-center gap-4 mb-16">
-              {processSteps.map((step, index) => (
-                <motion.button
-                  key={step.id}
-                  onClick={() => setActiveIndex(index)}
-                  className={`px-8 py-4 rounded-full font-semibold transition-all duration-300 ${
-                    activeIndex === index
-                      ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-900 shadow-lg shadow-teal-500/50'
-                      : 'bg-slate-800/50 text-slate-400 hover:bg-slate-800 hover:text-white border border-slate-700'
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">{step.icon}</span>
-                    <span className="hidden md:inline">{step.title}</span>
+        {/* ── PANEL ÚNICO A TODO EL ANCHO (contenido activo) ── */}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={activeIndex}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            className="relative overflow-hidden rounded-3xl border border-[#00f5d4]/20 bg-[#030d14]/80 shadow-[0_24px_70px_rgba(2,6,23,0.55),0_0_60px_-30px_rgba(0,245,212,0.35)] backdrop-blur-xl"
+          >
+            {/* Línea neón superior */}
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#00f5d4] via-cyan-400 to-blue-400" />
+
+            {/* Grid de dos columnas */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-0">
+              {/* ── Columna izquierda: visualización 3D / gráfica ── */}
+              <div className="relative flex items-center justify-center overflow-hidden border-b border-[#00f5d4]/10 p-4 md:p-6 lg:border-b-0 lg:border-r lg:min-h-[560px]">
+                {/* Textura de rejilla técnica */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 opacity-[0.07]"
+                  style={{
+                    backgroundImage:
+                      'linear-gradient(rgba(0,245,212,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,212,0.5) 1px, transparent 1px)',
+                    backgroundSize: '44px 44px',
+                  }}
+                />
+                {/* Halo radial de fondo */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0"
+                  style={{
+                    background:
+                      'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,245,212,0.10) 0%, transparent 70%)',
+                  }}
+                />
+
+                <div className="relative w-full h-[320px] sm:h-[400px] lg:h-full flex items-center justify-center">
+                  <VisualState state={getStateForIndex(activeIndex)} />
+                </div>
+
+                {/* Etiqueta técnica de la etapa */}
+                <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full border border-[#00f5d4]/30 bg-[#030d14]/80 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-[#00f5d4] backdrop-blur-md">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#00f5d4] animate-pulse" />
+                  {activeStep.stage}
+                </span>
+              </div>
+
+              {/* ── Columna derecha: información técnica ── */}
+              <div className="flex flex-col justify-center gap-5 p-6 md:p-8 lg:p-10">
+                {/* Encabezado: icono + paso + título */}
+                <div className="flex items-start gap-4">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#00f5d4] to-cyan-400 text-2xl shadow-[0_0_24px_rgba(0,245,212,0.4)]">
+                    {activeStep.icon}
                   </div>
-                </motion.button>
-              ))}
-            </div>
+                  <div className="min-w-0">
+                    <p className="mb-1 font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-[#00f5d4]">
+                      Paso {activeStep.id}
+                    </p>
+                    <h3 className="text-2xl font-bold leading-tight text-white md:text-3xl">
+                      {activeStep.title}
+                    </h3>
+                  </div>
+                </div>
 
-            {/* Acordeón horizontal de 3 columnas */}
-            <div className="flex flex-col md:flex-row gap-4 md:h-auto lg:h-[700px]">
-              {processSteps.map((step, index) => {
-                const isActive = activeIndex === index;
-                
-                return (
-                  <motion.div
-                    key={step.id}
-                    initial={false}
-                    animate={{ flex: isActive ? 2 : 0.5 }}
-                    transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-                    className={`relative cursor-pointer overflow-hidden rounded-3xl ${
-                      isActive ? 'min-h-[550px] md:min-h-[600px] lg:min-h-0' : 'min-h-[80px] md:min-h-0'
-                    }`}
-                    onClick={() => setActiveIndex(index)}
-                    onMouseEnter={() => setActiveIndex(index)}
-                  >
-                    <div className={`relative w-full h-full border-2 rounded-3xl transition-all duration-300 ${
-                      isActive 
-                        ? 'border-teal-500/50 shadow-2xl shadow-teal-500/20' 
-                        : 'border-slate-700/50 hover:border-slate-600'
-                    }`}>
-                      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/95 to-slate-950/95 backdrop-blur-sm" />
-                      
-                      {isActive ? (
-                        <div className="absolute inset-0 flex flex-col lg:flex-row items-center gap-4 lg:gap-8 p-5 lg:p-8">
-                          <motion.div 
-                            className="w-full lg:w-2/5 h-[40%] lg:h-full flex items-center justify-center shrink-0"
-                            initial={{ opacity: 0, x: -50 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5, delay: 0.2 }}
-                          >
-                            <VisualState state={getStateForIndex(index)} />
-                          </motion.div>
-                          <motion.div 
-                            className="w-full lg:flex-1 h-[60%] lg:h-full flex flex-col justify-start lg:justify-center space-y-3 lg:space-y-6 pr-0 lg:pr-4 overflow-y-auto"
-                            initial={{ opacity: 0, x: 50 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5, delay: 0.3 }}
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center text-2xl lg:text-3xl shadow-lg shadow-teal-500/40">
-                                {step.icon}
-                              </div>
-                              <div>
-                                <p className="text-xs text-teal-400 font-bold tracking-widest uppercase mb-1">Paso {step.id}</p>
-                                <h3 className="text-xl lg:text-3xl font-bold text-white">{step.title}</h3>
-                              </div>
-                            </div>
-                            <h4 className="text-lg lg:text-2xl font-semibold bg-gradient-to-r from-cyan-300 to-teal-300 bg-clip-text text-transparent">{step.subtitle}</h4>
-                            <p className="text-sm lg:text-base text-slate-300 leading-relaxed">{step.description}</p>
-                            {step.benefits && (
-                              <div className="space-y-3 pt-2">
-                                {step.benefits.map((benefit, i) => (
-                                  <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 + i * 0.1 }} className="flex items-start gap-3">
-                                    <div className="w-2 h-2 mt-2 bg-teal-400 rounded-full flex-shrink-0" />
-                                    <div>
-                                      <p className="text-teal-300 font-semibold text-sm">{benefit.label}</p>
-                                      <p className="text-slate-400 text-xs">{benefit.detail}</p>
-                                    </div>
-                                  </motion.div>
-                                ))}
-                              </div>
-                            )}
-                          </motion.div>
-                        </div>
-                      ) : (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
-                          <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center text-2xl mb-4 shadow-lg">{step.icon}</div>
-                          <h3 className="text-2xl font-bold text-white text-center mb-2" style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}>{step.title}</h3>
-                          <p className="text-sm text-teal-400 font-semibold tracking-wider uppercase">Paso {step.id}</p>
-                        </div>
-                      )}
+                {/* Subtítulo con gradiente */}
+                <h4 className="text-lg font-semibold bg-gradient-to-r from-[#00f5d4] to-cyan-400 bg-clip-text text-transparent md:text-xl">
+                  {activeStep.subtitle}
+                </h4>
 
-                      {isActive && (
-                        <motion.div layoutId="activeIndicator" className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-cyan-500" transition={{ type: "spring", stiffness: 500, damping: 30 }} />
-                      )}
-                    </div>
-                  </motion.div>
-                );
-              })}
+                {/* Descripción */}
+                <p className="text-sm leading-relaxed text-slate-300 md:text-base">
+                  {activeStep.description}
+                </p>
+
+                {/* Badges de estado TRL */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[#00f5d4]/35 bg-[#00f5d4]/10 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#00f5d4]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#00f5d4]" />
+                    {activeStep.trl}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">
+                    {activeStep.status}
+                  </span>
+                </div>
+
+                {/* Parámetros técnicos */}
+                {activeStep.specs && (
+                  <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+                    {activeStep.specs.map((spec) => (
+                      <div
+                        key={spec.label}
+                        className="rounded-xl border border-[#00f5d4]/12 bg-[#00f5d4]/[0.04] px-3.5 py-2.5"
+                      >
+                        <dt className="font-mono text-[10px] uppercase tracking-[0.15em] text-slate-500">
+                          {spec.label}
+                        </dt>
+                        <dd className="mt-0.5 text-sm font-semibold text-[#00f5d4]">
+                          {spec.value}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+
+                {/* Beneficios */}
+                {activeStep.benefits && (
+                  <ul className="space-y-2.5 border-t border-[#00f5d4]/12 pt-5">
+                    {activeStep.benefits.map((benefit) => (
+                      <li key={benefit.label} className="flex items-start gap-3">
+                        <span
+                          className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#00f5d4]"
+                          aria-hidden="true"
+                        />
+                        <div>
+                          <p className="text-sm font-semibold text-[#5eead4]">{benefit.label}</p>
+                          <p className="text-xs leading-[1.5] text-slate-400">{benefit.detail}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
-          </>
-        </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </section>
   );

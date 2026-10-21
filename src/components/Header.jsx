@@ -12,6 +12,11 @@ import { resolverVista } from '../lib/vistaBio';
 
 const MAIN_NAV = [
   {
+    label: 'Inicio',
+    href: '/',
+    prefix: '/',
+  },
+  {
     label: 'Lab',
     href: '/lab',
     prefix: '/lab',
