@@ -161,29 +161,12 @@ function BioreactorSceneInner({ tier, reducedMotion, geometries, materials }) {
    ═══════════════════════════════════════════════════════════════ */
 
 export default function BioreactorScene() {
-  const [progress, setProgress] = useState(0);
-  const [loaded, setLoaded] = useState(false);
-  const [hiding, setHiding] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   // Strict mount guard — runs only on client after hydration
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  // Progress animation effect
-  useEffect(() => {
-    if (loaded) return;
-    let current = 0;
-    const interval = setInterval(() => {
-      const target = 85;
-      current += (target - current) * 0.08;
-      const rounded = Math.min(Math.round(current), 99);
-      setProgress(rounded);
-      if (rounded >= 99) clearInterval(interval);
-    }, 100);
-    return () => clearInterval(interval);
-  }, [loaded]);
 
   // Device tier & motion preference (safe to call during render)
   const DEVICE_TIER = getDeviceTier();
@@ -269,39 +252,18 @@ export default function BioreactorScene() {
     };
   }, [DEVICE_TIER]);
 
-  // SSR / pre-mount: placeholder seguro — Three.js NO se ejecuta
+  // SSR / pre-mount: placeholder seguro — Three.js NO se ejecuta.
+  // Sin etiquetas numéricas: el visor queda limpio, solo líquido y estructura.
   if (!isMounted || !geometries || !materials) {
-    return (
-      <div className="w-full h-[400px] min-h-[400px] bg-[#03100e] relative">
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="font-mono font-extralight tabular-nums text-[#2dd4bf]" style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', letterSpacing: '-0.02em' }}>
-            {progress}%
-          </span>
-          <div className="w-20 h-px mt-2 rounded-full overflow-hidden" style={{ background: 'rgba(45,212,191,0.15)' }}>
-            <div className="h-full rounded-full transition-[width] duration-300 ease-out" style={{ width: `${progress}%`, background: '#2dd4bf' }} />
-          </div>
-        </div>
-      </div>
-    );
+    return <div className="w-full h-[400px] min-h-[400px] bg-[#03100e] relative" />;
   }
 
   // Cliente montado + recursos listos → render Canvas
   return (
     <div className="relative w-full h-full">
-      {!hiding && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center transition-opacity duration-700 pointer-events-none">
-          <span className="font-mono font-extralight tabular-nums leading-none" style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', color: '#2dd4bf', letterSpacing: '-0.02em' }}>
-            {progress}%
-          </span>
-          <div className="w-20 h-px mt-2 rounded-full overflow-hidden" style={{ background: 'rgba(45,212,191,0.15)' }}>
-            <div className="h-full rounded-full transition-[width] duration-300 ease-out" style={{ width: `${progress}%`, background: '#2dd4bf' }} />
-          </div>
-        </div>
-      )}
-
       <Canvas
         dpr={canvasConfig.dpr}
-        camera={{ position: [0, 0, 4], fov: 40 }}
+        camera={{ position: [0, 0, 6.5], fov: 45 }}
         gl={{
           alpha: true,
           antialias: canvasConfig.antialias,

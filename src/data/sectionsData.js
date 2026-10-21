@@ -10,6 +10,15 @@ export const processSteps = [
     description: "Protegemos moléculas biológicamente activas —metabolitos, probióticos, enzimas y compuestos bioactivos de plantas— dentro de una cubierta microscópica nano o micro. Esta tecnología garantiza que tus ingredientes mantengan su potencia desde la producción hasta su liberación controlada.",
     visual: "unstable",
     icon: "🔬",
+    stage: "PROTECCIÓN MOLECULAR",
+    trl: "TRL 4-5",
+    status: "Validación en laboratorio",
+    specs: [
+      { label: "Temperatura", value: "20 – 25 °C" },
+      { label: "Tamaño de partícula", value: "20 – 900 nm" },
+      { label: "Matriz", value: "Lípidos · Polímeros" },
+      { label: "Carga bioactiva", value: "Hasta 40 % p/p" }
+    ],
     benefits: [
       {
         label: "Estabilidad",
@@ -32,6 +41,15 @@ export const processSteps = [
     description: "Utilizamos procesos biotecnológicos avanzados para producir ingredientes de ultra-pureza. Nuestra fermentación de precisión permite crear bioactivos de manera sostenible, escalable y con control total sobre la calidad del producto final.",
     visual: "encapsulating",
     icon: "🧬",
+    stage: "FERMENTACIÓN DE PRECISIÓN",
+    trl: "TRL 6-7",
+    status: "Escala pre-comercial",
+    specs: [
+      { label: "Temperatura", value: "37 °C" },
+      { label: "pH de proceso", value: "6.8 – 7.4" },
+      { label: "Tiempo de fermentación", value: "48 – 72 h" },
+      { label: "Pureza", value: "> 99 %" }
+    ],
     benefits: [
       {
         label: "Alta Pureza",
@@ -54,6 +72,15 @@ export const processSteps = [
     description: "Empleamos tecnologías avanzadas de secado como spray-drying para convertir los bioactivos encapsulados en polvos estables. El resultado son ingredientes de fácil manipulación, larga vida útil y listos para integrarse en cualquier formulación industrial.",
     visual: "complete",
     icon: "❄️",
+    stage: "SECADO AVANZADO",
+    trl: "TRL 8-9",
+    status: "Producción industrial",
+    specs: [
+      { label: "Temperatura de entrada", value: "165 – 200 °C" },
+      { label: "Temperatura de salida", value: "80 – 95 °C" },
+      { label: "Tiempo de residencia", value: "4 – 8 s" },
+      { label: "Vida útil", value: "24 – 36 meses" }
+    ],
     benefits: [
       {
         label: "Polvo Estable",

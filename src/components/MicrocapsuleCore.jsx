@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useMemo, useState } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Float, Center, ContactShadows, Environment, Lightformer } from '@react-three/drei';
 import * as THREE from 'three';
@@ -33,17 +33,22 @@ function createClusterSpheres() {
 
 const CLUSTER_SPHERES = createClusterSpheres();
 
+/* Radio de la membrana translúcida dedicada: envuelve SOLO el conglomerado
+   de esferas (activo + poros), dejando las partículas orbitales por fuera. */
+const MEMBRANE_RADIUS = 1.35;
+
 const GEOMETRIES = {
   sphere: new THREE.SphereGeometry(1, 48, 48),
+  membrane: new THREE.SphereGeometry(MEMBRANE_RADIUS, 48, 48),
   pore: new THREE.SphereGeometry(0.006, 8, 8),
-  particle: new THREE.SphereGeometry(0.018, 10, 10),
+  particle: new THREE.SphereGeometry(0.022, 10, 10),
 };
 
 /* ═══════════════════════════════════════════════════════════════
    SUBCOMPONENTES PREMIUM
    ═══════════════════════════════════════════════════════════════ */
 
-function ClusterLights({ tier, hovered, elapsed }) {
+function ClusterLights({ tier, hovered }) {
   if (tier === 'low') {
     return (
       <>
@@ -193,7 +198,7 @@ function SphereWithPores({ sphere, materials, hovered, index }) {
   );
 }
 
-function ConnectingBridges({ materials, elapsed }) {
+function ConnectingBridges({ materials }) {
   const bridgesRef = useRef([]);
   
   const connections = [
@@ -201,8 +206,9 @@ function ConnectingBridges({ materials, elapsed }) {
     { from: 1, to: 3 }, { from: 2, to: 4 }, { from: 1, to: 4 },
   ];
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!bridgesRef.current.length) return;
+    const elapsed = state.clock.elapsedTime;
     bridgesRef.current.forEach((bridge, i) => {
       const s1 = CLUSTER_SPHERES[connections[i].from];
       const s2 = CLUSTER_SPHERES[connections[i].to];
@@ -254,22 +260,24 @@ function ConnectingBridges({ materials, elapsed }) {
   );
 }
 
-function OrbitingParticles({ materials, tier, reducedMotion, elapsed }) {
+function OrbitingParticles({ materials, tier, reducedMotion }) {
   const ref = useRef();
   const dummy = useRef(new THREE.Object3D());
   const PARTICLE_COUNT = tier === 'low' ? 25 : 50;
 
-  useFrame((_, delta) => {
+  useFrame((state) => {
     if (reducedMotion) return;
     if (!ref.current) return;
+    const elapsed = state.clock.elapsedTime;
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const baseRadius = 1.25 + (i % 5) * 0.18;
+      /* Órbita trazada alrededor de la membrana translúcida */
+      const baseRadius = MEMBRANE_RADIUS * 1.18 + (i % 5) * 0.13;
       const speed = 0.15 + (i % 7) * 0.03;
       const phi = (i / PARTICLE_COUNT) * Math.PI * 2 + elapsed * speed;
       const theta = Math.PI / 2 + Math.sin(i * 1.3 + elapsed * 0.6) * 0.35;
       const radiusVariation = Math.sin(elapsed * 0.8 + i * 2.1) * 0.08;
-      
+
       dummy.current.position.set(
         (baseRadius + radiusVariation) * Math.sin(theta) * Math.cos(phi),
         (baseRadius + radiusVariation) * Math.cos(theta) + Math.sin(elapsed * 0.7 + i) * 0.05,
@@ -286,38 +294,86 @@ function OrbitingParticles({ materials, tier, reducedMotion, elapsed }) {
   );
 }
 
-function OuterShell({ materials, hovered, elapsed }) {
-  const shellRef = useRef();
+/* ── Membrana translúcida dedicada (envoltura de vidrio biológica) ──
+   Envuelve únicamente el conglomerado de esferas. No se comparte con
+   ningún otro modelo de la aplicación (Pipeline, Tecnología, etc.). */
+function TranslucentMembrane({ hovered }) {
+  const membraneRef = useRef();
+  const rimRef = useRef();
 
-  useFrame(() => {
-    if (!shellRef.current) return;
-    const target = hovered ? 0.12 : 0.22;
-    const next = THREE.MathUtils.lerp(shellRef.current.material.opacity, target, 0.06);
-    shellRef.current.material.opacity = next;
-    
+  /* Material Fresnel: capa aditiva que dibuja el canto neón del vidrio */
+  const rimMaterial = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        uniforms: {
+          uColor: { value: new THREE.Color('#00f5d4') },
+          uIntensity: { value: 0.9 },
+        },
+        vertexShader: `
+          varying vec3 vNormalV;
+          varying vec3 vView;
+          void main() {
+            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+            vNormalV = normalize(normalMatrix * normal);
+            vView = normalize(-mv.xyz);
+            gl_Position = projectionMatrix * mv;
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 uColor;
+          uniform float uIntensity;
+          varying vec3 vNormalV;
+          varying vec3 vView;
+          void main() {
+            float facing = clamp(dot(normalize(vNormalV), normalize(vView)), 0.0, 1.0);
+            float fres = pow(1.0 - facing, 3.0);
+            gl_FragColor = vec4(uColor * (1.0 + fres * 1.8), fres * uIntensity);
+          }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        side: THREE.FrontSide,
+      }),
+    []
+  );
+
+  useEffect(() => () => rimMaterial.dispose(), [rimMaterial]);
+
+  useFrame((state) => {
+    if (!membraneRef.current) return;
+    const elapsed = state.clock.elapsedTime;
+    const target = hovered ? 0.16 : 0.25;
+    const next = THREE.MathUtils.lerp(membraneRef.current.material.opacity, target, 0.06);
+    membraneRef.current.material.opacity = next;
+
     const breathe = Math.sin(elapsed * 1.2) * 0.006;
-    shellRef.current.scale.setScalar(1 + breathe);
+    membraneRef.current.scale.setScalar(1 + breathe);
+    if (rimRef.current) rimRef.current.scale.setScalar(1.012 + breathe);
   });
 
   return (
-    <mesh ref={shellRef} geometry={GEOMETRIES.sphere} castShadow receiveShadow>
-      <meshPhysicalMaterial
-        attach="material"
-        color="#00d2b4"
-        metalness={0.02}
-        roughness={0.15}
-        transmission={1}
-        thickness={0.8}
-        ior={1.5}
-        dispersion={0.05}
-        clearcoat={1}
-        clearcoatRoughness={0.05}
-        transparent
-        opacity={0.22}
-        side={THREE.FrontSide}
-        depthWrite={false}
-      />
-    </mesh>
+    <group>
+      <mesh ref={membraneRef} geometry={GEOMETRIES.membrane} castShadow receiveShadow>
+        <meshPhysicalMaterial
+          attach="material"
+          color="#00f5d4"
+          metalness={0}
+          roughness={0.1}
+          transmission={0.85}
+          thickness={1.2}
+          ior={1.4}
+          transparent
+          opacity={0.25}
+          side={THREE.FrontSide}
+          depthWrite={false}
+        />
+      </mesh>
+
+      <mesh ref={rimRef} geometry={GEOMETRIES.membrane}>
+        <primitive object={rimMaterial} attach="material" />
+      </mesh>
+    </group>
   );
 }
 
@@ -328,7 +384,7 @@ function ClusterSceneInner({ hovered, tier, reducedMotion, materials }) {
       
       <Float speed={0.15} rotationIntensity={0.06} floatIntensity={tier === 'low' ? 0 : 0.2}>
         <Center>
-          <OuterShell materials={materials} hovered={hovered} />
+          <TranslucentMembrane hovered={hovered} />
           <ConnectingBridges materials={materials} />
           {CLUSTER_SPHERES.map((sphere, i) => (
             <SphereWithPores
@@ -409,12 +465,18 @@ const MATERIALS_FACTORY = {
     opacity: 0.25,
     depthWrite: false,
   }),
+  /* Estrellas orbitales: emisivo brillante para el rastro/halo estelar */
   particle: () => new THREE.MeshStandardMaterial({
     color: new THREE.Color('#00f5d4'),
-    emissive: new THREE.Color('#00d2b4'),
-    emissiveIntensity: 1.5,
-    metalness: 0.3,
-    roughness: 0.2,
+    emissive: new THREE.Color('#00f5d4'),
+    emissiveIntensity: 2,
+    metalness: 0.2,
+    roughness: 0.3,
+    transparent: true,
+    opacity: 0.9,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    toneMapped: false,
   }),
 };
 
@@ -466,7 +528,9 @@ export default function MicrocapsuleCore() {
         frameloop={REDUCED_MOTION ? 'demand' : 'always'}
         className="bg-transparent"
       >
-        <group scale={0.7}>
+        {/* Escala del conjunto: la membrana (1.35) + estrellas orbitales
+            (~2.1) encuadran con aire dentro de la tarjeta del visor. */}
+        <group scale={0.85}>
           <ClusterSceneInner 
             hovered={hovered} 
             tier={DEVICE_TIER} 
