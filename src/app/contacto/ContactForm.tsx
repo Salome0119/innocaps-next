@@ -3,9 +3,10 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import { submitContacto } from "@/app/actions/contacto";
 
 type Via = "lab" | "bio" | "licensing";
-type EstadoEnvio = "listo" | "enviando" | "recibido";
+type EstadoEnvio = "listo" | "enviando" | "recibido" | "error";
 
 const ASUNTO_POR_TIPO: Record<Via, string> = {
   lab: "InnoCaps Lab — I+D+i, formulación y caracterización",
@@ -114,14 +115,38 @@ export default function ContactForm() {
     evento.preventDefault();
     if (estado === "enviando") return;
     setEstado("enviando");
-    await new Promise((resolver) => setTimeout(resolver, 900));
-    setEstado("recibido");
+    
+    const formData = {
+      via: asunto!,
+      asunto: ASUNTO_POR_TIPO[asunto!],
+      nombre: campos.nombre,
+      empresa: campos.empresa,
+      email: campos.email,
+      telefono: campos.telefono,
+      sector: campos.sector,
+      consulta: campos.mensaje,
+    };
+
+    const result = await submitContacto(formData);
+    
+    if (result.success) {
+      setEstado("recibido");
+    } else {
+      setEstado("error");
+      // Keep error state for a moment then allow retry
+      setTimeout(() => setEstado("listo"), 3000);
+    }
   }
 
   function reiniciar() {
     setCampos(CAMPOS_INICIALES);
     setEstado("listo");
   }
+
+  const isSubmitting = estado === "enviando";
+  const isError = estado === "error";
+  const isDisabled = isSubmitting || isError;
+  const ariaLiveText = isSubmitting ? "Enviando solicitud…" : isError ? "Error al enviar" : "";
 
   return (
     <motion.div
@@ -179,6 +204,41 @@ export default function ContactForm() {
               className="mt-2 inline-flex items-center gap-2 rounded-full border border-teal-500/50 bg-teal-500/10 px-6 py-3 text-sm font-bold text-teal-400 transition-all hover:bg-teal-500 hover:text-slate-950"
             >
               Enviar otra consulta
+            </button>
+          </div>
+        ) : estado === "error" ? (
+          <div
+            role="alert"
+            aria-live="assertive"
+            className="relative z-10 flex flex-col items-center justify-center gap-4 py-10 text-center"
+          >
+            <span className="flex h-14 w-14 items-center justify-center rounded-full border border-red-500/50 bg-red-500/15">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-7 w-7 text-red-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+            </span>
+            <h2 className="text-xl sm:text-2xl font-light tracking-wider text-white">
+              Error al enviar
+            </h2>
+            <p className="max-w-md text-sm text-slate-300 leading-relaxed">
+              No se pudo registrar tu consulta. Por favor, inténtalo de nuevo en unos instantes.
+            </p>
+            <button
+              type="button"
+              onClick={() => setEstado("listo")}
+              className="mt-2 inline-flex items-center gap-2 rounded-full border border-teal-500/50 bg-teal-500/10 px-6 py-3 text-sm font-bold text-teal-400 transition-all hover:bg-teal-500 hover:text-slate-950"
+            >
+              Reintentar
             </button>
           </div>
         ) : (
@@ -351,17 +411,17 @@ export default function ContactForm() {
             </div>
 
             <p aria-live="polite" className="sr-only">
-              {estado === "enviando" ? "Enviando solicitud…" : ""}
+              {ariaLiveText}
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="submit"
-                disabled={estado === "enviando"}
+                disabled={isDisabled}
                 className="relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-teal-500 via-teal-400 to-cyan-400 px-8 py-3.5 text-sm font-bold text-slate-950 transition-all hover:from-teal-400 hover:via-cyan-400 hover:to-lime-400 hover:shadow-[0_0_30px_-5px_rgba(45,212,191,0.8)] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
               >
                 <span className="relative z-10">
-                  {estado === "enviando" ? (
+                  {isSubmitting ? (
                     <>
                       <span
                         aria-hidden="true"

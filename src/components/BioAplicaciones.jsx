@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /* ═══════════════════════════════════════════════════════════════════
-   SUB-VISTA 4 — APLICACIONES ("¿Dónde encaja tu empresa?")
+   SUB-VISTA — APLICACIONES ("¿Dónde encaja tu empresa?")
    Grilla de 6 industrias seleccionables con brillo cian; al elegir
    una, se despliega su ficha de beneficios clave.
+   Estilo homologado a /lab: glassmorphism, gradientes, animaciones Framer Motion
    ═══════════════════════════════════════════════════════════════════ */
 
 const SECTORES = [
@@ -106,28 +107,49 @@ const SECTORES = [
   },
 ];
 
+/* Animación helpers (estilo Lab) */
+const fadeUp = {
+  initial: { opacity: 0, y: 40 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-60px' },
+  transition: { duration: 0.7, ease: 'easeOut' },
+};
+
+const stagger = (delay = 0) => ({
+  ...fadeUp,
+  transition: { ...fadeUp.transition, delay },
+});
+
 export default function BioAplicaciones() {
   const [activeId, setActiveId] = useState(SECTORES[0].id);
   const active = SECTORES.find((s) => s.id === activeId) || SECTORES[0];
 
   return (
     <div id="bio-tab-aplicaciones" role="tabpanel" aria-label="Sectores e industrias">
-      {/* ── Encabezado de sub-vista ── */}
-      <div className="bio-subhead max-w-2xl mx-auto text-center mb-12">
+      {/* ── Encabezado de sub-vista (estilo Lab) ── */}
+      <motion.div
+        {...stagger(0)}
+        className="relative rounded-3xl bg-slate-900/60 border border-slate-700/50 p-6 text-center md:p-8 md:mb-12 backdrop-blur-xl max-w-3xl mx-auto"
+      >
         <h3 className="text-3xl md:text-4xl font-light tracking-wide mb-3">
-          Sectores e Industrias <span className="txt-grad font-semibold">Target</span>
+          Sectores e Industrias <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-400 to-blue-400 font-semibold">Target</span>
         </h3>
-        <p className="text-[#b0b0b0] text-sm md:text-base leading-relaxed">
+        <p className="text-slate-400 text-sm md:text-base leading-relaxed">
           Desarrollos a la medida para múltiples mercados globales.
         </p>
-      </div>
+      </motion.div>
 
-      {/* ── Grilla interactiva de 6 tarjetas ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8" role="tablist" aria-label="Industrias objetivo">
+      {/* ── Grilla interactiva de 6 tarjetas (estilo Lab) ── */}
+      <motion.div
+        {...stagger(0.1)}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
+        role="tablist"
+        aria-label="Industrias objetivo"
+      >
         {SECTORES.map((s) => {
           const isActive = s.id === activeId;
           return (
-            <button
+            <motion.button
               key={s.id}
               type="button"
               role="tab"
@@ -135,25 +157,30 @@ export default function BioAplicaciones() {
               onClick={() => setActiveId(s.id)}
               className={`flex items-center gap-4 rounded-2xl border p-5 text-left transition-all duration-300 ${
                 isActive
-                  ? 'border-[#00ffff]/60 bg-[#00ffff]/5 shadow-[0_0_20px_rgba(0,255,255,0.2)]'
-                  : 'border-[#00ffff]/20 bg-[#041915]/60 backdrop-blur-md hover:border-[#00ffff]/40'
+                  ? 'border-teal-500/50 bg-teal-500/5 shadow-[0_0_20px_rgba(20,184,166,0.2)]'
+                  : 'border-slate-700/50 bg-slate-900/60 backdrop-blur-md hover:border-teal-500/40'
               }`}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               <span
-                className={`shrink-0 transition-colors ${isActive ? 'text-[#00ffff]' : 'text-[#b0b0b0]'}`}
+                className={`shrink-0 transition-colors ${isActive ? 'text-teal-400' : 'text-slate-500'}`}
               >
                 {s.icono}
               </span>
-              <span className={`text-sm font-medium leading-snug transition-colors ${isActive ? 'text-[#f0f0f0]' : 'text-[#d1d8d6]'}`}>
+              <span className={`text-sm font-medium leading-snug transition-colors ${isActive ? 'text-white' : 'text-slate-300'}`}>
                 {s.nombre}
               </span>
-            </button>
+            </motion.button>
           );
         })}
-      </div>
+      </motion.div>
 
-      {/* ── Ficha de beneficios del sector elegido ── */}
-        <div className="bio-glass p-8">
+      {/* ── Ficha de beneficios del sector elegido (glassmorphism estilo Lab) ── */}
+      <motion.div
+        {...stagger(0.15)}
+        className="relative rounded-3xl bg-slate-900/60 border border-slate-700/50 p-8 backdrop-blur-xl"
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={active.id}
@@ -163,24 +190,24 @@ export default function BioAplicaciones() {
             transition={{ duration: 0.3, ease: 'easeInOut' }}
           >
             <div className="flex items-center gap-3 mb-5">
-              <span className="text-[#00ffff]">{active.icono}</span>
-              <h4 className="text-xl font-semibold text-[#f0f0f0]">{active.nombre}</h4>
+              <span className="text-teal-400">{active.icono}</span>
+              <h4 className="text-xl font-semibold text-white">{active.nombre}</h4>
             </div>
 
-            <span className="block text-xs uppercase tracking-[0.15em] text-[#00ffff]/80 mb-4">
+            <span className="block text-xs uppercase tracking-[0.15em] text-teal-400/80 mb-4">
               Beneficios clave
             </span>
             <ul className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-3">
               {active.beneficios.map((b) => (
-                <li key={b} className="flex items-start gap-3 text-sm text-[#d1d8d6] leading-relaxed">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#00ffff]/70" aria-hidden="true" />
+                <li key={b} className="flex items-start gap-3 text-sm text-slate-300 leading-relaxed">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-400" aria-hidden="true" />
                   {b}
                 </li>
               ))}
             </ul>
           </motion.div>
         </AnimatePresence>
-      </div>
+      </motion.div>
     </div>
   );
 }

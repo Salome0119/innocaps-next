@@ -8,8 +8,9 @@ import GlossaryTooltip from './GlossaryTooltip';
 const MicrocapsuleCore = dynamic(() => import('./MicrocapsuleCore'), { ssr: false, loading: () => null });
 
 /* ═══════════════════════════════════════════════════════════════════
-   SUB-VISTA 3 — SOLUCIONES B2B / PORTAFOLIO WIBIO
+   SUB-VISTA — SOLUCIONES B2B / PORTAFOLIO WIBIO
    Microcápsula 3D + Series de producto + Modelos de negocio + Verticales + Formatos
+   Estilo homologado a /lab: glassmorphism, gradientes, animaciones Framer Motion
    ═══════════════════════════════════════════════════════════════════ */
 
 // 5 SERIES DE PRODUCTO
@@ -172,7 +173,7 @@ const VERTICALES = [
   { id: 'pharma', label: 'Pharma / OTC', icon: '🏥' },
 ];
 
-// FORMATOS DE ENTREGA (existente, mantenido)
+// FORMATOS DE ENTREGA
 const FORMATOS = [
   {
     id: 'saco',
@@ -236,6 +237,19 @@ const TRL_COLORS = {
   violet: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
 };
 
+/* Animación helpers (estilo Lab) */
+const fadeUp = {
+  initial: { opacity: 0, y: 40 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-60px' },
+  transition: { duration: 0.7, ease: 'easeOut' },
+};
+
+const stagger = (delay = 0) => ({
+  ...fadeUp,
+  transition: { ...fadeUp.transition, delay },
+});
+
 export default function BioSoluciones() {
   const [activeFormat, setActiveFormat] = useState(FORMATOS[0].id);
   const [activeSeries, setActiveSeries] = useState(SERIES[0].id);
@@ -246,39 +260,49 @@ export default function BioSoluciones() {
 
   return (
     <div id="bio-tab-soluciones" role="tabpanel" aria-label="Portafolio WiBio y soluciones industriales">
-      {/* ── Encabezado ── */}
-      <div className="bio-subhead max-w-2xl mx-auto text-center mb-10 md:mb-14">
+      {/* ── Encabezado (estilo Lab) ── */}
+      <motion.div
+        {...stagger(0)}
+        className="relative rounded-3xl bg-slate-900/60 border border-slate-700/50 p-6 text-center md:p-8 md:mb-12 backdrop-blur-xl max-w-3xl mx-auto"
+      >
         <h3 className="text-3xl md:text-4xl font-light tracking-wide mb-3">
-          Portafolio <span className="txt-grad font-semibold">WiBio</span> & Soluciones Industriales
+          Portafolio <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-400 to-blue-400 font-semibold">WiBio</span> & Soluciones Industriales
         </h3>
-        <p className="text-[#b0b0b0] text-sm md:text-base leading-relaxed">
+        <p className="text-slate-400 text-sm md:text-base leading-relaxed">
           Ingredientes microencapsulados, desarrollo a medida y licensing — listos para tu mercado.
         </p>
-      </div>
+      </motion.div>
 
       {/* ── 1. MICROCÁPSULA 3D (Demo GutAcid Balance®) ── */}
-      <div className="mb-10 md:mb-12">
-        <div className="bio-glass bio-glass--cyan relative h-[320px] sm:h-[380px] overflow-hidden">
+      <motion.div
+        {...stagger(0.1)}
+        className="mb-10 md:mb-12"
+      >
+        <div className="relative rounded-3xl bg-slate-900/60 border border-slate-700/50 overflow-hidden backdrop-blur-xl h-[320px] sm:h-[380px]">
           <MicrocapsuleCore />
           <div className="absolute inset-0 flex items-end p-6 pointer-events-none">
             <div className="max-w-xs text-right">
-              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#00ffff]/70 block mb-1">
+              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-teal-400/70 block mb-1">
                 Demo interactiva: GutAcid Balance®
               </span>
-              <p className="text-xs text-[#b0b0b0]">
+              <p className="text-xs text-slate-400">
                 Núcleo emisivo (activo) + cáscara translúcida (protección gástrica) + partículas en órbita (bioactivos).
                 Arrastra para rotar; haz hover para intensificar el núcleo.
               </p>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* ── 2. SERIES DE PRODUCTO ── */}
-      <section className="mb-12 md:mb-16" aria-labelledby="series-title">
+      <motion.section
+        {...stagger(0.15)}
+        className="mb-12 md:mb-16"
+        aria-labelledby="series-title"
+      >
         <h4 id="series-title" className="text-xl md:text-2xl font-semibold text-white mb-6 flex items-center gap-2">
-          <span className="txt-grad">Series de Producto</span>
-          <span className="text-xs font-mono tracking-[0.2em] uppercase text-[#00ffff]/70">5 series</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-400 to-blue-400">Series de Producto</span>
+          <span className="text-xs font-mono tracking-[0.2em] uppercase text-teal-400/70">5 series</span>
         </h4>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8" role="tablist" aria-label="Series de producto WiBio">
@@ -286,7 +310,7 @@ export default function BioSoluciones() {
             const isActive = s.id === activeSeries;
             const trlClass = TRL_COLORS[s.trlColor] || TRL_COLORS.emerald;
             return (
-              <button
+              <motion.button
                 key={s.id}
                 type="button"
                 role="tab"
@@ -294,26 +318,28 @@ export default function BioSoluciones() {
                 onClick={() => setActiveSeries(s.id)}
                 className={`rounded-2xl border p-5 text-left transition-all duration-300 h-full flex flex-col ${
                   isActive
-                    ? 'border-[#00ffff]/60 bg-[#00ffff]/5 shadow-[0_0_20px_rgba(0,255,255,0.15)]'
-                    : 'border-[#00ffff]/20 bg-[#041915]/60 backdrop-blur-md hover:border-[#00ffff]/40'
+                    ? 'border-teal-500/50 bg-teal-500/5 shadow-[0_0_20px_rgba(20,184,166,0.15)]'
+                    : 'border-slate-700/50 bg-slate-900/60 backdrop-blur-md hover:border-teal-500/40 hover:text-teal-300'
                 }`}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-start justify-between gap-2 mb-3">
-                  <h5 className={`font-semibold text-sm sm:text-base ${isActive ? 'text-[#00ffff]' : 'text-[#f0f0f0]'}`}>
+                  <h5 className={`font-semibold text-sm sm:text-base ${isActive ? 'text-teal-400' : 'text-white'}`}>
                     {s.nombre}
                   </h5>
                   <span className={`text-[10px] font-mono tracking-[0.2em] uppercase px-2 py-0.5 rounded-full border ${trlClass} flex-shrink-0`}>
                     {s.trl}
                   </span>
                 </div>
-                <p className="text-xs text-[#b0b0b0] leading-relaxed flex-1">{s.descriptor}</p>
-              </button>
+                <p className="text-xs text-slate-400 leading-relaxed flex-1">{s.descriptor}</p>
+              </motion.button>
             );
           })}
         </div>
 
         {/* Detalle de la serie activa */}
-        <div className="bio-glass p-6 md:p-8">
+        <div className="relative rounded-3xl bg-slate-900/60 border border-slate-700/50 p-6 md:p-8 backdrop-blur-xl">
           <AnimatePresence mode="wait">
             <motion.div
               key={series.id}
@@ -323,39 +349,43 @@ export default function BioSoluciones() {
               transition={{ duration: 0.3, ease: 'easeInOut' }}
             >
               <div className="flex flex-wrap items-baseline justify-between gap-2 mb-6">
-                <h5 className="text-xl md:text-2xl font-semibold text-[#f0f0f0]">{series.nombre}</h5>
+                <h5 className="text-xl md:text-2xl font-semibold text-white">{series.nombre}</h5>
                 <span className={`text-[10px] font-mono tracking-[0.2em] uppercase px-2 py-0.5 rounded-full border ${TRL_COLORS[series.trlColor]}`}>
                   {series.trl}
                 </span>
               </div>
-              <p className="text-[#b0b0b0] text-sm md:text-base leading-relaxed mb-6">{series.descriptor}</p>
+              <p className="text-slate-400 text-sm md:text-base leading-relaxed mb-6">{series.descriptor}</p>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-4">
                 {series.detalle.map((d, idx) => (
-                  <div key={idx} className="py-3 border-t border-[#00ffff]/10">
-                    <dt className="text-xs uppercase tracking-[0.15em] text-[#00ffff]/80 mb-1.5">
+                  <div key={idx} className="py-3 border-t border-slate-700/50">
+                    <dt className="text-xs uppercase tracking-[0.15em] text-teal-400/80 mb-1.5">
                       {d.label}
                     </dt>
-                    <dd className="text-sm text-[#d1d8d6] leading-relaxed">{d.valor}</dd>
+                    <dd className="text-sm text-slate-300 leading-relaxed">{d.valor}</dd>
                   </div>
                 ))}
               </dl>
             </motion.div>
           </AnimatePresence>
         </div>
-      </section>
+      </motion.section>
 
       {/* ── 3. MODELOS DE NEGOCIO ── */}
-      <section className="mb-12 md:mb-16" aria-labelledby="models-title">
+      <motion.section
+        {...stagger(0.2)}
+        className="mb-12 md:mb-16"
+        aria-labelledby="models-title"
+      >
         <h4 id="models-title" className="text-xl md:text-2xl font-semibold text-white mb-6 flex items-center gap-2">
-          <span className="txt-grad">Modelos de Negocio</span>
-          <span className="text-xs font-mono tracking-[0.2em] uppercase text-[#00ffff]/70">3 streams</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-400 to-blue-400">Modelos de Negocio</span>
+          <span className="text-xs font-mono tracking-[0.2em] uppercase text-teal-400/70">3 streams</span>
         </h4>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8" role="tablist" aria-label="Modelos de negocio">
           {BUSINESS_MODELS.map((m) => {
             const isActive = m.id === activeModel;
             return (
-              <button
+              <motion.button
                 key={m.id}
                 type="button"
                 role="tab"
@@ -363,26 +393,28 @@ export default function BioSoluciones() {
                 onClick={() => setActiveModel(m.id)}
                 className={`rounded-2xl border p-5 text-left transition-all duration-300 h-full flex flex-col ${
                   isActive
-                    ? 'border-[#00ffff]/60 bg-[#00ffff]/5 shadow-[0_0_20px_rgba(0,255,255,0.15)]'
-                    : 'border-[#00ffff]/20 bg-[#041915]/60 backdrop-blur-md hover:border-[#00ffff]/40'
+                    ? 'border-teal-500/50 bg-teal-500/5 shadow-[0_0_20px_rgba(20,184,166,0.15)]'
+                    : 'border-slate-700/50 bg-slate-900/60 backdrop-blur-md hover:border-teal-500/40'
                 }`}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <span className={`w-10 h-10 rounded-xl flex items-center justify-center ${isActive ? 'bg-[#00ffff]/15' : 'bg-[#03100e] border border-[#00ffff]/20'} text-[#00ffff]`}>
+                  <span className={`w-10 h-10 rounded-xl flex items-center justify-center ${isActive ? 'bg-teal-500/15' : 'bg-slate-900/50 border border-slate-700/50'} text-teal-400`}>
                     {m.icono}
                   </span>
                   <div>
-                    <span className={`font-mono text-xs tabular-nums ${isActive ? 'text-[#00ffff]' : 'text-[#b0b0b0]'}`}>{m.num}</span>
-                    <h5 className={`block font-semibold ${isActive ? 'text-[#00ffff]' : 'text-[#f0f0f0]'}`}>{m.titulo}</h5>
-                    <span className="text-xs text-[#b0b0b0]">{m.subtitulo}</span>
+                    <span className={`font-mono text-xs tabular-nums ${isActive ? 'text-teal-400' : 'text-slate-500'}`}>{m.num}</span>
+                    <h5 className={`block font-semibold ${isActive ? 'text-teal-400' : 'text-white'}`}>{m.titulo}</h5>
+                    <span className="text-xs text-slate-500">{m.subtitulo}</span>
                   </div>
                 </div>
-              </button>
+              </motion.button>
             );
           })}
         </div>
 
-        <div className="bio-glass p-6 md:p-8">
+        <div className="relative rounded-3xl bg-slate-900/60 border border-slate-700/50 p-6 md:p-8 backdrop-blur-xl">
           <AnimatePresence mode="wait">
             <motion.div
               key={model.id}
@@ -392,48 +424,60 @@ export default function BioSoluciones() {
               transition={{ duration: 0.3, ease: 'easeInOut' }}
             >
               <div className="flex items-center gap-3 mb-4">
-                <span className="w-12 h-12 rounded-xl bg-[#00ffff]/15 flex items-center justify-center text-[#00ffff]">{model.icono}</span>
+                <span className="w-12 h-12 rounded-xl bg-teal-500/15 flex items-center justify-center text-teal-400">{model.icono}</span>
                 <div>
-                  <span className="font-mono text-xs tabular-nums text-[#00ffff]/70">{model.num}</span>
-                  <h5 className="block text-xl font-semibold text-[#f0f0f0] mt-1">{model.titulo}</h5>
+                  <span className="font-mono text-xs tabular-nums text-teal-400/70">{model.num}</span>
+                  <h5 className="block text-xl font-semibold text-white mt-1">{model.titulo}</h5>
                   <span className="text-sm text-teal-400">{model.subtitulo}</span>
                 </div>
               </div>
-              <p className="text-[#b0b0b0] text-base leading-relaxed">{model.descripcion}</p>
+              <p className="text-slate-400 text-base leading-relaxed">{model.descripcion}</p>
             </motion.div>
           </AnimatePresence>
         </div>
-      </section>
+      </motion.section>
 
       {/* ── 4. VERTICALES B2B ── */}
-      <section className="mb-12 md:mb-16" aria-labelledby="verticals-title">
+      <motion.section
+        {...stagger(0.25)}
+        className="mb-12 md:mb-16"
+        aria-labelledby="verticals-title"
+      >
         <h4 id="verticals-title" className="text-xl md:text-2xl font-semibold text-white mb-6 flex items-center gap-2">
-          <span className="txt-grad">Verticales Objetivo</span>
-          <span className="text-xs font-mono tracking-[0.2em] uppercase text-[#00ffff]/70">6 sectores</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-400 to-blue-400">Verticales Objetivo</span>
+          <span className="text-xs font-mono tracking-[0.2em] uppercase text-teal-400/70">6 sectores</span>
         </h4>
 
         <div className="flex flex-wrap gap-3" role="list" aria-label="Verticales B2B">
           {VERTICALES.map((v) => (
-            <span key={v.id} role="listitem" className="flex items-center gap-2 px-4 py-2 rounded-full border border-[#00ffff]/20 bg-[#041915]/60 backdrop-blur-md text-sm text-[#d1d8d6] hover:border-[#00ffff]/40 hover:bg-[#00ffff]/5 transition-colors">
+            <motion.span
+              key={v.id}
+              role="listitem"
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-slate-700/50 bg-slate-900/60 backdrop-blur-md text-sm text-slate-300 hover:border-teal-500/40 hover:bg-teal-500/10 transition-colors"
+              whileHover={{ scale: 1.05 }}
+            >
               <span aria-hidden="true">{v.icon}</span>
               {v.label}
-            </span>
+            </motion.span>
           ))}
         </div>
-      </section>
+      </motion.section>
 
-      {/* ── 5. FORMATOS DE ENTREGA (existente) ── */}
-      <section aria-labelledby="formatos-title">
+      {/* ── 5. FORMATOS DE ENTREGA ── */}
+      <motion.section
+        {...stagger(0.3)}
+        aria-labelledby="formatos-title"
+      >
         <h4 id="formatos-title" className="text-xl md:text-2xl font-semibold text-white mb-6 flex items-center gap-2">
-          <span className="txt-grad">Formatos de Entrega</span>
-          <span className="text-xs font-mono tracking-[0.2em] uppercase text-[#00ffff]/70">3 presentaciones</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-400 to-blue-400">Formatos de Entrega</span>
+          <span className="text-xs font-mono tracking-[0.2em] uppercase text-teal-400/70">3 presentaciones</span>
         </h4>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8" role="tablist" aria-label="Formatos de entrega">
           {FORMATOS.map((f) => {
             const isActive = f.id === activeFormat;
             return (
-              <button
+              <motion.button
                 key={f.id}
                 type="button"
                 role="tab"
@@ -441,21 +485,23 @@ export default function BioSoluciones() {
                 onClick={() => setActiveFormat(f.id)}
                 className={`rounded-2xl border p-5 text-left transition-all duration-300 h-full flex flex-col ${
                   isActive
-                    ? 'border-[#00ffff]/60 bg-[#00ffff]/5 shadow-[0_0_20px_rgba(0,255,255,0.15)]'
-                    : 'border-[#00ffff]/20 bg-[#041915]/60 backdrop-blur-md hover:border-[#00ffff]/40'
+                    ? 'border-teal-500/50 bg-teal-500/5 shadow-[0_0_20px_rgba(20,184,166,0.15)]'
+                    : 'border-slate-700/50 bg-slate-900/60 backdrop-blur-md hover:border-teal-500/40'
                 }`}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <span className={`block mb-3 transition-colors ${isActive ? 'text-[#00ffff]' : 'text-[#b0b0b0]'}`}>
+                <span className={`block mb-3 transition-colors ${isActive ? 'text-teal-400' : 'text-slate-500'}`}>
                   {f.icono}
                 </span>
-                <span className="block text-[#f0f0f0] font-semibold text-sm mb-1">{f.nombre}</span>
-                <span className="block text-[#b0b0b0] text-xs leading-relaxed flex-1">{f.resumen}</span>
-              </button>
+                <span className="block text-white font-semibold text-sm mb-1">{f.nombre}</span>
+                <span className="block text-slate-400 text-xs leading-relaxed flex-1">{f.resumen}</span>
+              </motion.button>
             );
           })}
         </div>
 
-        <div className="bio-glass p-6 md:p-8">
+        <div className="relative rounded-3xl bg-slate-900/60 border border-slate-700/50 p-6 md:p-8 backdrop-blur-xl">
           <AnimatePresence mode="wait">
             <motion.div
               key={format.id}
@@ -465,21 +511,21 @@ export default function BioSoluciones() {
               transition={{ duration: 0.3, ease: 'easeInOut' }}
             >
               <div className="flex flex-wrap items-baseline justify-between gap-2 mb-6">
-                <h5 className="text-xl font-semibold text-[#f0f0f0]">{format.nombre}</h5>
-                <span className="text-xs font-mono uppercase tracking-[0.2em] text-[#00ffff]/70">especificaciones</span>
+                <h5 className="text-xl font-semibold text-white">{format.nombre}</h5>
+                <span className="text-xs font-mono uppercase tracking-[0.2em] text-teal-400/70">especificaciones</span>
               </div>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-10">
                 {format.specs.map((s) => (
-                  <div key={s.label} className="py-4 border-t border-[#00ffff]/10">
-                    <dt className="text-xs uppercase tracking-[0.15em] text-[#00ffff]/80 mb-1.5">{s.label}</dt>
-                    <dd className="text-sm text-[#d1d8d6] leading-relaxed">{s.valor}</dd>
+                  <div key={s.label} className="py-4 border-t border-slate-700/50">
+                    <dt className="text-xs uppercase tracking-[0.15em] text-teal-400/80 mb-1.5">{s.label}</dt>
+                    <dd className="text-sm text-slate-300 leading-relaxed">{s.valor}</dd>
                   </div>
                 ))}
               </dl>
             </motion.div>
           </AnimatePresence>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 }

@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   // Equivalente al `allowedHosts` de ngrok que tenías en astro.config.mjs
   output: "standalone", // <-- Añadido para empaquetado eficiente en Docker
   allowedDevOrigins: ["*.ngrok-free.dev", "*.ngrok.io"],
+  transpilePackages: ["@payloadcms/richtext-lexical", "payload"],
+  serverExternalPackages: ["@payloadcms/db-postgres", "esbuild", "@esbuild/win32-x64"],
   // Redirecciones permanentes: URLs legacy → destino vigente
   async redirects() {
     return [

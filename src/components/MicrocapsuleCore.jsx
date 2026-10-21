@@ -1,93 +1,279 @@
 'use client';
 
-import { useRef, useMemo, useEffect, useState } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Float, Center, ContactShadows, Environment } from '@react-three/drei';
+import { OrbitControls, Float, Center, ContactShadows, Environment, Lightformer } from '@react-three/drei';
 import * as THREE from 'three';
 import { getDeviceTier, prefersReducedMotion } from '../lib/deviceTier';
 
 /* ═══════════════════════════════════════════════════════════════
-   ESCENA PROCEDURAL — MICROCÁPSULA DOBLE CAPA (NÚCLEO + CÁSCARA)
-   Núcleo emisivo + cáscara con transmission + partículas en órbita.
-   Tier-aware, reduced-motion, hover intensifica emisivo.
-   ═══════════════════════════════════════════════════════════════ */
+   GUTACID BALANCE® — MICROCAPSULE CLUSTER PREMIUM CINEMÁTICO
+   Núcleo: 5 microesferas aglomeradas con materiales fotorrealistas
+   Membrana: refracción realista + dispersión
+   Partículas orbitales orgánicas + pulso interactivo
+   Iluminación 3-puntos + OrbitControls cinematográfico
+   ════════════════════════════════════════════════════════════════ */
 
-// Geometrías compartidas
+function createClusterSpheres() {
+  const basePositions = [
+    [0.00, 0.00, 0.00],
+    [0.58, -0.18, 0.12],
+    [-0.48, 0.32, -0.18],
+    [0.18, 0.62, 0.25],
+    [-0.28, -0.52, -0.08],
+  ];
+
+  return basePositions.map((pos, i) => ({
+    id: `sphere-${i}`,
+    position: pos,
+    radius: i === 0 ? 0.35 : 0.25 + (i % 2) * 0.04,
+    isCore: i === 0,
+  }));
+}
+
+const CLUSTER_SPHERES = createClusterSpheres();
+
 const GEOMETRIES = {
-  core: new THREE.SphereGeometry(0.45, 32, 32),
-  shell: new THREE.SphereGeometry(0.75, 32, 32),
-  particle: new THREE.SphereGeometry(0.025, 8, 8),
+  sphere: new THREE.SphereGeometry(1, 48, 48),
+  pore: new THREE.SphereGeometry(0.006, 8, 8),
+  particle: new THREE.SphereGeometry(0.018, 10, 10),
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   SUBCOMPONENTES — nivel de módulo
+   SUBCOMPONENTES PREMIUM
    ═══════════════════════════════════════════════════════════════ */
 
-function MicrocapsuleLights({ tier }) {
+function ClusterLights({ tier, hovered, elapsed }) {
   if (tier === 'low') {
     return (
       <>
-        <ambientLight intensity={2} color="#0F4C3A" />
-        <directionalLight position={[3, 3, 4]} intensity={2} color="#ffffff" />
+        <ambientLight intensity={0.6} color="#083028" />
+        <directionalLight position={[5, 5, 5]} intensity={2} color="#ffffff" />
       </>
     );
   }
+
+  const pulseIntensity = hovered ? 1.3 : 1.0;
+
   return (
     <>
-      <ambientLight intensity={1} color="#0F4C3A" />
-      <directionalLight position={[5, 5, 5]} intensity={1} color="#e9fffd" />
-      <pointLight position={[-3, 2, -3]} intensity={2} color="#00f5d4" distance={15} />
-      <Environment preset="city" />
+      <ambientLight intensity={0.4} color="#062820" />
+
+      <pointLight
+        position={[0, 2.5, 3.5]}
+        intensity={2.2 * pulseIntensity}
+        color="#00f5d4"
+        distance={15}
+        decay={2}
+      />
+
+      <pointLight
+        position={[0, -2.5, -4]}
+        intensity={1.8 * pulseIntensity}
+        color="#3b82f6"
+        distance={15}
+        decay={2}
+      />
+
+      <pointLight
+        position={[-3.5, 1.5, 1.5]}
+        intensity={1.2 * pulseIntensity}
+        color="#22d3ee"
+        distance={12}
+        decay={2}
+      />
+
+      <pointLight
+        position={[0, 5, 0]}
+        intensity={0.8}
+        color="#67e8f9"
+        distance={20}
+        decay={2}
+      />
+
+      <Environment resolution={256} background={false}>
+        <group rotation={[-Math.PI / 4, 0, 0]}>
+          <Lightformer
+            form="rect"
+            intensity={4}
+            color="#00f5d4"
+            scale={[14, 14, 1]}
+            position={[0, 8, -12]}
+          />
+          <Lightformer
+            form="circle"
+            intensity={2}
+            color="#3b82f6"
+            scale={6}
+            position={[0, -5, 0]}
+            rotation-x={Math.PI / 2}
+          />
+        </group>
+      </Environment>
     </>
   );
 }
 
-function Shell({ materials }) {
-  return <mesh geometry={GEOMETRIES.shell} material={materials.shell} />;
-}
+function SphereWithPores({ sphere, materials, hovered, index }) {
+  const meshRef = useRef();
+  const [emissiveBoost, setEmissiveBoost] = useState(0);
 
-function Core({ materials, hovered }) {
-  const coreRef = useRef();
-  const [emissiveIntensity, setEmissiveIntensity] = useState(0.8);
+  useFrame(() => {
+    if (!meshRef.current) return;
+    const target = hovered ? 0.8 : 0;
+    setEmissiveBoost(prev => THREE.MathUtils.lerp(prev, target, 0.08));
+  });
 
-  useEffect(() => {
-    if (!coreRef.current) return;
-    const target = hovered ? 1.8 : 0.8;
-    function animate() {
-      if (!coreRef.current) return;
-      const current = coreRef.current.material.emissiveIntensity;
-      coreRef.current.material.emissiveIntensity = THREE.MathUtils.lerp(current, target, 0.1);
-      if (Math.abs(coreRef.current.material.emissiveIntensity - target) > 0.01) {
-        requestAnimationFrame(animate);
-      }
+  const porePositions = useMemo(() => {
+    const pores = [];
+    const count = sphere.isCore ? 60 : 35;
+    const seed = 12345 + index * 100;
+    let s = seed >>> 0;
+    const rnd = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+    
+    for (let i = 0; i < count; i++) {
+      const phi = Math.acos(2 * rnd() - 1);
+      const theta = rnd() * Math.PI * 2;
+      const r = sphere.radius * (0.98 + rnd() * 0.04);
+      pores.push([
+        r * Math.sin(phi) * Math.cos(theta),
+        r * Math.cos(phi),
+        r * Math.sin(phi) * Math.sin(theta),
+      ]);
     }
-    animate();
-  }, [hovered]);
+    return pores;
+  }, [sphere.radius, sphere.isCore, index]);
 
   return (
-    <mesh ref={coreRef} geometry={GEOMETRIES.core} material={materials.core} />
+    <group>
+      <mesh
+        ref={meshRef}
+        geometry={GEOMETRIES.sphere}
+        material={materials.sphere}
+        scale={[sphere.radius, sphere.radius, sphere.radius]}
+        position={sphere.position}
+        castShadow
+        receiveShadow
+        onPointerOver={() => setEmissiveBoost(0.8)}
+        onPointerOut={() => setEmissiveBoost(0)}
+      >
+        <meshPhysicalMaterial
+          attach="material"
+          color="#00f5d4"
+          metalness={0.1}
+          roughness={0.2}
+          clearcoat={1.0}
+          clearcoatRoughness={0.1}
+          emissive="#003b36"
+          emissiveIntensity={0.4 + emissiveBoost}
+          transparent
+          opacity={0.95}
+          depthWrite={false}
+        />
+      </mesh>
+      {porePositions.map((pos, i) => (
+        <mesh
+          key={i}
+          geometry={GEOMETRIES.pore}
+          position={pos}
+        >
+          <meshStandardMaterial
+            color="#00f5d4"
+            emissive="#00d2b4"
+            emissiveIntensity={1.8 + emissiveBoost}
+            metalness={0.4}
+            roughness={0.1}
+            transparent
+            opacity={0.95}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 }
 
-function OrbitingParticles({ materials, tier, reducedMotion }) {
+function ConnectingBridges({ materials, elapsed }) {
+  const bridgesRef = useRef([]);
+  
+  const connections = [
+    { from: 0, to: 1 }, { from: 0, to: 2 }, { from: 0, to: 3 }, { from: 0, to: 4 },
+    { from: 1, to: 3 }, { from: 2, to: 4 }, { from: 1, to: 4 },
+  ];
+
+  useFrame((_, delta) => {
+    if (!bridgesRef.current.length) return;
+    bridgesRef.current.forEach((bridge, i) => {
+      const s1 = CLUSTER_SPHERES[connections[i].from];
+      const s2 = CLUSTER_SPHERES[connections[i].to];
+      const p1 = new THREE.Vector3(...s1.position).multiplyScalar(0.7);
+      const p2 = new THREE.Vector3(...s2.position).multiplyScalar(0.7);
+      const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
+      const dist = p1.distanceTo(p2);
+      
+      bridge.position.copy(mid);
+      bridge.lookAt(p2);
+      bridge.scale.set(1, 1, dist * 0.85);
+      bridge.rotation.x = -Math.PI / 2;
+      
+      if (bridge.material) {
+        const pulse = 0.2 + Math.sin(elapsed * 1.5 + i) * 0.08;
+        bridge.material.opacity = THREE.MathUtils.lerp(bridge.material.opacity, pulse, delta * 4);
+        bridge.material.emissiveIntensity = THREE.MathUtils.lerp(
+          bridge.material.emissiveIntensity, 
+          0.6 + Math.sin(elapsed * 2 + i) * 0.2, 
+          delta * 3
+        );
+      }
+    });
+  });
+
+  return (
+    <group>
+      {connections.map((conn, i) => {
+        const s1 = CLUSTER_SPHERES[conn.from];
+        const s2 = CLUSTER_SPHERES[conn.to];
+        const p1 = new THREE.Vector3(...s1.position).multiplyScalar(0.7);
+        const p2 = new THREE.Vector3(...s2.position).multiplyScalar(0.7);
+        const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
+        const dist = p1.distanceTo(p2);
+        
+        return (
+          <mesh
+            key={i}
+            ref={(el) => { bridgesRef.current[i] = el; }}
+            geometry={new THREE.CylinderGeometry(0.028, 0.028, 1, 10, 1, true)}
+            material={materials.bridge}
+            position={mid}
+            rotation={[-Math.PI / 2, 0, 0]}
+            scale={[1, 1, dist * 0.85]}
+          />
+        );
+      })}
+    </group>
+  );
+}
+
+function OrbitingParticles({ materials, tier, reducedMotion, elapsed }) {
   const ref = useRef();
   const dummy = useRef(new THREE.Object3D());
-  const PARTICLE_COUNT = tier === 'low' ? 16 : 32;
+  const PARTICLE_COUNT = tier === 'low' ? 25 : 50;
 
   useFrame((_, delta) => {
     if (reducedMotion) return;
     if (!ref.current) return;
 
-    const time = Date.now() * 0.0005;
     for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const radius = 0.95 + (i % 3) * 0.15;
-      const phi = (i / PARTICLE_COUNT) * Math.PI * 2 + time * (0.3 + (i % 5) * 0.1);
-      const theta = Math.PI / 2 + Math.sin(i + time) * 0.3;
-
+      const baseRadius = 1.25 + (i % 5) * 0.18;
+      const speed = 0.15 + (i % 7) * 0.03;
+      const phi = (i / PARTICLE_COUNT) * Math.PI * 2 + elapsed * speed;
+      const theta = Math.PI / 2 + Math.sin(i * 1.3 + elapsed * 0.6) * 0.35;
+      const radiusVariation = Math.sin(elapsed * 0.8 + i * 2.1) * 0.08;
+      
       dummy.current.position.set(
-        radius * Math.sin(theta) * Math.cos(phi),
-        radius * Math.cos(theta),
-        radius * Math.sin(theta) * Math.sin(phi)
+        (baseRadius + radiusVariation) * Math.sin(theta) * Math.cos(phi),
+        (baseRadius + radiusVariation) * Math.cos(theta) + Math.sin(elapsed * 0.7 + i) * 0.05,
+        (baseRadius + radiusVariation) * Math.sin(theta) * Math.sin(phi)
       );
       dummy.current.updateMatrix();
       ref.current.setMatrixAt(i, dummy.current.matrix);
@@ -100,66 +286,135 @@ function OrbitingParticles({ materials, tier, reducedMotion }) {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   ESCENA INTERNA
-   ═══════════════════════════════════════════════════════════════ */
+function OuterShell({ materials, hovered, elapsed }) {
+  const shellRef = useRef();
 
-function MicrocapsuleSceneInner({ hovered, tier, reducedMotion, materials }) {
+  useFrame(() => {
+    if (!shellRef.current) return;
+    const target = hovered ? 0.12 : 0.22;
+    const next = THREE.MathUtils.lerp(shellRef.current.material.opacity, target, 0.06);
+    shellRef.current.material.opacity = next;
+    
+    const breathe = Math.sin(elapsed * 1.2) * 0.006;
+    shellRef.current.scale.setScalar(1 + breathe);
+  });
+
+  return (
+    <mesh ref={shellRef} geometry={GEOMETRIES.sphere} castShadow receiveShadow>
+      <meshPhysicalMaterial
+        attach="material"
+        color="#00d2b4"
+        metalness={0.02}
+        roughness={0.15}
+        transmission={1}
+        thickness={0.8}
+        ior={1.5}
+        dispersion={0.05}
+        clearcoat={1}
+        clearcoatRoughness={0.05}
+        transparent
+        opacity={0.22}
+        side={THREE.FrontSide}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+}
+
+function ClusterSceneInner({ hovered, tier, reducedMotion, materials }) {
   return (
     <>
-      <MicrocapsuleLights tier={tier} />
-      <Float speed={0.25} rotationIntensity={0.1} floatIntensity={tier === 'low' ? 0 : 0.3}>
+      <ClusterLights tier={tier} hovered={hovered} />
+      
+      <Float speed={0.15} rotationIntensity={0.06} floatIntensity={tier === 'low' ? 0 : 0.2}>
         <Center>
-          <Shell materials={materials} />
-          <Core materials={materials} hovered={hovered} />
+          <OuterShell materials={materials} hovered={hovered} />
+          <ConnectingBridges materials={materials} />
+          {CLUSTER_SPHERES.map((sphere, i) => (
+            <SphereWithPores
+              key={sphere.id}
+              sphere={sphere}
+              materials={materials}
+              hovered={hovered}
+              index={i}
+            />
+          ))}
           <OrbitingParticles materials={materials} tier={tier} reducedMotion={reducedMotion} />
         </Center>
       </Float>
 
       {tier !== 'low' && (
-        <ContactShadows position={[0, -1.2, 0]} opacity={0.2} scale={4} blur={2} far={2} />
+        <ContactShadows position={[0, -1.1, 0]} opacity={0.25} scale={6} blur={3} far={3} />
       )}
 
       <OrbitControls
         makeDefault
-        enableZoom={false}
-        enablePan={false}
-        minPolarAngle={Math.PI / 4}
+        enableDamping
+        dampingFactor={0.05}
+        enableZoom={true}
+        enablePan={true}
+        minDistance={1.6}
+        maxDistance={12}
+        minPolarAngle={Math.PI / 3}
         maxPolarAngle={Math.PI / 1.5}
+        autoRotate={false}
+        autoRotateSpeed={0.15}
+        target={[0, 0, 0]}
       />
     </>
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   MATERIALES
-   ══════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════
+   MATERIALES FOTORREALISTAS PREMIUM
+   ═══════════════════════════════════════════════════════════════ */
 
 const MATERIALS_FACTORY = {
-  core: () => new THREE.MeshStandardMaterial({
+  sphere: (tier) => new THREE.MeshPhysicalMaterial({
     color: new THREE.Color('#00f5d4'),
-    emissive: new THREE.Color('#00d2b4'),
-    emissiveIntensity: 0.8,
     metalness: 0.1,
     roughness: 0.2,
-  }),
-  shell: (tier) => new THREE.MeshPhysicalMaterial({
-    color: new THREE.Color('#00d2b4'),
-    metalness: 0.05,
-    roughness: 0.08,
-    transmission: tier === 'low' ? 0 : 0.7,
-    thickness: 1.5,
-    clearcoat: 1,
-    clearcoatRoughness: 0.05,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.1,
+    emissive: new THREE.Color('#003b36'),
+    emissiveIntensity: 0.4,
+    transmission: tier === 'low' ? 0 : 0.3,
+    thickness: 0.5,
+    ior: 1.4,
     transparent: true,
-    opacity: 0.35,
+    opacity: 0.95,
+    depthWrite: false,
+  }),
+  pore: () => new THREE.MeshStandardMaterial({
+    color: new THREE.Color('#00f5d4'),
+    emissive: new THREE.Color('#00d2b4'),
+    emissiveIntensity: 2.0,
+    metalness: 0.5,
+    roughness: 0.05,
+    transparent: true,
+    opacity: 1.0,
+    depthWrite: false,
+  }),
+  bridge: (tier) => new THREE.MeshPhysicalMaterial({
+    color: new THREE.Color('#00f5d4'),
+    emissive: new THREE.Color('#00d2b4'),
+    emissiveIntensity: 0.5,
+    transmission: tier === 'low' ? 0 : 0.6,
+    thickness: 0.5,
+    roughness: 0.15,
+    metalness: 0.1,
+    clearcoat: 1,
+    clearcoatRoughness: 0.08,
+    transparent: true,
+    opacity: 0.25,
+    depthWrite: false,
   }),
   particle: () => new THREE.MeshStandardMaterial({
     color: new THREE.Color('#00f5d4'),
     emissive: new THREE.Color('#00d2b4'),
-    emissiveIntensity: 0.6,
-    metalness: 0.2,
-    roughness: 0.3,
+    emissiveIntensity: 1.5,
+    metalness: 0.3,
+    roughness: 0.2,
   }),
 };
 
@@ -168,41 +423,20 @@ const MATERIALS_FACTORY = {
    ═══════════════════════════════════════════════════════════════ */
 
 export default function MicrocapsuleCore() {
-  const [progress, setProgress] = useState(0);
-  const [loaded, setLoaded] = useState(false);
-  const [hiding, setHiding] = useState(false);
   const [hovered, setHovered] = useState(false);
-
-  useEffect(() => {
-    if (loaded) return;
-    let current = 0;
-    const interval = setInterval(() => {
-      const target = 85;
-      current += (target - current) * 0.08;
-      const rounded = Math.min(Math.round(current), 99);
-      setProgress(rounded);
-      if (rounded >= 99) clearInterval(interval);
-    }, 100);
-    return () => clearInterval(interval);
-  }, [loaded]);
-
-  const handleLoaded = () => {
-    setProgress(100);
-    setLoaded(true);
-    setTimeout(() => setHiding(true), 400);
-  };
 
   const DEVICE_TIER = getDeviceTier();
   const REDUCED_MOTION = prefersReducedMotion();
 
   const materials = useMemo(() => ({
-    core: MATERIALS_FACTORY.core(),
-    shell: MATERIALS_FACTORY.shell(DEVICE_TIER),
+    sphere: MATERIALS_FACTORY.sphere(DEVICE_TIER),
+    pore: MATERIALS_FACTORY.pore(),
+    bridge: MATERIALS_FACTORY.bridge(DEVICE_TIER),
     particle: MATERIALS_FACTORY.particle(),
   }), [DEVICE_TIER]);
 
   const canvasConfig = useMemo(() => ({
-    dpr: DEVICE_TIER === 'low' ? [1, 1] : [1, 1.5],
+    dpr: DEVICE_TIER === 'low' ? [1, 1] : [1, 1.75],
     antialias: DEVICE_TIER !== 'low',
   }), [DEVICE_TIER]);
 
@@ -210,35 +444,36 @@ export default function MicrocapsuleCore() {
     <div className="relative w-full h-full"
          onPointerOver={() => setHovered(true)}
          onPointerOut={() => setHovered(false)}>
-      {!hiding && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center transition-opacity duration-700 pointer-events-none">
-          <span className="font-mono font-extralight tabular-nums leading-none" style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', color: '#00f5d4', letterSpacing: '-0.02em' }}>
-            {progress}%
-          </span>
-          <div className="w-20 h-px mt-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,245,212,0.15)' }}>
-            <div className="h-full rounded-full transition-[width] duration-300 ease-out" style={{ width: `${progress}%`, background: '#00f5d4' }} />
-          </div>
-        </div>
-      )}
-
       <Canvas
         dpr={canvasConfig.dpr}
-        camera={{ position: [0, 0, 2.5], fov: 35 }}
+        camera={{ position: [0, 0, 4.2], fov: 40 }}
         gl={{
           alpha: true,
           antialias: canvasConfig.antialias,
           powerPreference: 'high-performance',
           stencil: false,
           depth: true,
+          preserveDrawingBuffer: false,
         }}
         onCreated={({ gl, scene }) => {
           gl.setClearColor(0x000000, 0);
           scene.background = null;
+          gl.outputColorSpace = THREE.SRGBColorSpace;
+          gl.toneMapping = THREE.ACESFilmicToneMapping;
+          gl.toneMappingExposure = 1.15;
+          gl.physicallyCorrectLights = true;
         }}
         frameloop={REDUCED_MOTION ? 'demand' : 'always'}
         className="bg-transparent"
       >
-        <MicrocapsuleSceneInner hovered={hovered} tier={DEVICE_TIER} reducedMotion={REDUCED_MOTION} materials={materials} />
+        <group scale={0.7}>
+          <ClusterSceneInner 
+            hovered={hovered} 
+            tier={DEVICE_TIER} 
+            reducedMotion={REDUCED_MOTION} 
+            materials={materials} 
+          />
+        </group>
       </Canvas>
     </div>
   );
