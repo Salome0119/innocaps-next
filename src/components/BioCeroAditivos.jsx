@@ -6,24 +6,9 @@ import GlossaryTooltip from './GlossaryTooltip';
 
 /* ═══════════════════════════════════════════════════════════════════
    ENFOQUE "CERO ADITIVOS" — Unidad 02
-   Dos casos de proceso ("Micelio como Cápsula Natural" y
-   "Auto-Ensamblaje Molecular") homologados al sistema glassmorphism
-   nanotecnológico: tarjetas flotantes translúcidas, íconos
-   resplandecientes en verde lima y cian, badges técnicos y tipografía
-   limpia. Se apoya en el canvas de partículas de NanoBackground.
+   Dos casos de proceso homologados al estilo /lab:
+   glassmorphism, gradientes teal/cyan, badges técnicos, tipografía limpia
    ═══════════════════════════════════════════════════════════════════ */
-
-const fadeUp = {
-  initial: { opacity: 0, y: 36 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-60px' },
-  transition: { duration: 0.7, ease: 'easeOut' },
-};
-
-const stagger = (d = 0) => ({
-  ...fadeUp,
-  transition: { ...fadeUp.transition, delay: d },
-});
 
 const CASES = [
   {
@@ -59,19 +44,32 @@ const CASES = [
   },
 ];
 
+/* Animación helpers (estilo Lab) */
+const fadeUp = {
+  initial: { opacity: 0, y: 40 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-60px' },
+  transition: { duration: 0.7, ease: 'easeOut' },
+};
+
+const stagger = (delay = 0) => ({
+  ...fadeUp,
+  transition: { ...fadeUp.transition, delay },
+});
+
 const Icono = ({ Caso, accent }) => {
-  const color = accent === 'lime' ? '#9bdc3c' : '#00f5d4';
+  const isLime = accent === 'lime';
+  const color = isLime ? '#9bdc3c' : '#00f5d4';
   return (
     <span
       className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
       style={{
         color,
-        background:
-          accent === 'lime'
-            ? 'rgba(155, 220, 60, 0.08)'
-            : 'rgba(0, 245, 212, 0.08)',
-        border: `1px solid ${accent === 'lime' ? 'rgba(155, 220, 60, 0.32)' : 'rgba(0, 245, 212, 0.32)'}`,
-        boxShadow: `0 0 24px -6px ${accent === 'lime' ? 'rgba(155, 220, 60, 0.45)' : 'rgba(0, 245, 212, 0.45)'}`,
+        background: isLime
+          ? 'rgba(155, 220, 60, 0.08)'
+          : 'rgba(0, 245, 212, 0.08)',
+        border: `1px solid ${isLime ? 'rgba(155, 220, 60, 0.32)' : 'rgba(0, 245, 212, 0.32)'}`,
+        boxShadow: `0 0 24px -6px ${isLime ? 'rgba(155, 220, 60, 0.45)' : 'rgba(0, 245, 212, 0.45)'}`,
       }}
     >
       <Caso size={22} strokeWidth={1.6} aria-hidden="true" />
@@ -82,10 +80,10 @@ const Icono = ({ Caso, accent }) => {
 export default function BioCeroAditivos() {
   return (
     <section
-      className="relative w-full overflow-hidden"
+      className="relative w-full overflow-hidden bg-slate-950 py-16 md:py-24"
       aria-label="El enfoque cero aditivos"
     >
-      {/* Halos ambientales (el fondo real es el canvas de partículas) */}
+      {/* Halos ambientales (estilo Lab) */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
@@ -95,30 +93,35 @@ export default function BioCeroAditivos() {
         }}
       />
 
-      <div className="relative mx-auto max-w-6xl" style={{ zIndex: 10 }}>
-        {/* ── Encabezado del módulo ── */}
-        <motion.div {...fadeUp} className="bio-glass mx-auto mb-12 max-w-3xl p-7 text-center md:p-9">
-          <span className="bio-tech-badge">
+      <div className="relative mx-auto max-w-6xl px-6" style={{ zIndex: 10 }}>
+        {/* ── Encabezado del módulo (estilo Lab) ── */}
+        <motion.div
+          {...stagger(0)}
+          className="relative rounded-3xl bg-slate-900/60 border border-slate-700/50 mx-auto mb-12 max-w-3xl p-7 text-center md:p-9 backdrop-blur-xl"
+        >
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 text-xs font-bold tracking-[0.25em] uppercase text-teal-400 border border-teal-500/30 rounded-full bg-teal-500/5">
             <Sparkles size={12} strokeWidth={2} aria-hidden="true" />
             Zero Additives Strategy
           </span>
           <h2 className="mt-5 text-3xl font-light tracking-wide text-white md:text-5xl">
-            El Enfoque <span className="bio-accent-lime font-semibold">&ldquo;Cero Aditivos&rdquo;</span>
+            El Enfoque <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-400 to-blue-400 font-semibold">&ldquo;Cero Aditivos&rdquo;</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-slate-300 md:text-base">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-slate-400 md:text-base">
             La plataforma encapsulante nace del propio proceso fermentativo: la biología aporta la
             estructura y nosotros ajustamos las variables de proceso para fijar su comportamiento.
           </p>
         </motion.div>
 
-        {/* ── Tarjetas de caso ── */}
+        {/* ── Tarjetas de caso (glassmorphism estilo Lab) ── */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {CASES.map((caso, index) => (
             <motion.article
               key={caso.id}
-              {...stagger(index * 0.12)}
-              className={`bio-glass group relative overflow-hidden p-7 transition-transform duration-500 hover:-translate-y-1.5 md:p-8 ${
-                caso.accent === 'lime' ? 'bio-glass--lime' : 'bio-glass--cyan'
+              {...stagger(index * 0.12 + 0.2)}
+              className={`relative rounded-3xl bg-slate-900/60 border border-slate-700/50 p-7 transition-transform duration-500 hover:-translate-y-1.5 md:p-8 backdrop-blur-xl group ${
+                caso.accent === 'lime'
+                  ? 'hover:border-lime-500/40 hover:shadow-[0_0_20px_rgba(155,220,60,0.15)]'
+                  : 'hover:border-cyan-500/40 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)]'
               }`}
             >
               {/* Halo del ícono */}
@@ -138,8 +141,10 @@ export default function BioCeroAditivos() {
 
                 <div className="min-w-0 flex-1">
                   <span
-                    className={`bio-tech-badge ${
-                      caso.accent === 'lime' ? 'bio-tech-badge--lime' : 'bio-tech-badge--cyan'
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase ${
+                      caso.accent === 'lime'
+                        ? 'bg-lime-500/20 text-lime-400 border border-lime-500/30'
+                        : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
                     }`}
                   >
                     {caso.tag}
@@ -150,17 +155,17 @@ export default function BioCeroAditivos() {
                 </div>
               </div>
 
-              <div className="relative my-5 h-px bg-gradient-to-r from-transparent via-teal-500/30 to-transparent" />
+              <div className="relative my-5 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent" />
 
-              <p className="relative text-sm leading-relaxed text-slate-300">{caso.description}</p>
+              <p className="relative text-sm leading-relaxed text-slate-400">{caso.description}</p>
 
               <div className="relative mt-6 flex items-center justify-between gap-4">
-                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-slate-500">
                   {caso.metric}
                 </span>
                 <span
                   className={`flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] ${
-                    caso.accent === 'lime' ? 'bio-accent-lime' : 'bio-accent-cyan'
+                    caso.accent === 'lime' ? 'text-lime-400' : 'text-cyan-400'
                   }`}
                 >
                   Detalle

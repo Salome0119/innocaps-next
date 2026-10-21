@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { Header } from "@/components/Header";
 import BioHero from "@/components/BioHero";
 import BioWiBioSection from "@/components/BioWiBioSection";
+import BioBackground3D from "@/components/BioBackground3D";
 import { esVistaTecnologia } from "@/lib/vistaBio";
 
 export const metadata: Metadata = {
@@ -32,8 +33,11 @@ export default async function BioPage({
   const params = await searchParams;
   const mostrarHero = esVistaTecnologia(params?.seccion);
 
-  return (
+return (
     <main className="relative min-h-screen bg-slate-950">
+      {/* Fondo 3D: micela fija anclada al viewport (estilo Lab) */}
+      <BioBackground3D />
+      
       <Header />
       {mostrarHero && <BioHero />}
       <Suspense fallback={
@@ -42,7 +46,7 @@ export default async function BioPage({
             <div className="bio-glass p-8 md:p-12">
               <span className="bio-tech-badge">Unidad 02 · Escalamiento e Industria</span>
               <h2 className="mt-4 text-3xl md:text-5xl font-light tracking-wide text-white">
-                InnoCaps <span className="txt-grad font-semibold">Bio &amp; WiBio</span>
+                InnoCaps <span className="txt-grad font-semibold">Bio & WiBio</span>
               </h2>
               <div className="mt-8 h-96 animate-pulse rounded-3xl border border-teal-500/20 bg-teal-500/5" />
             </div>

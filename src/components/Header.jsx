@@ -44,6 +44,11 @@ const MAIN_NAV = [
     prefix: '/nosotros',
   },
   {
+    label: 'Propuesta de Valor',
+    href: '/propuesta-de-valor',
+    prefix: '/propuesta-de-valor',
+  },
+  {
     label: 'Contacto',
     href: '/contacto',
     prefix: '/contacto',
