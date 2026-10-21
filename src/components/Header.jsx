@@ -157,7 +157,7 @@ function Dropdown({ item, isOpen, onToggle, onClose, activeChild }) {
    MENÚ MÓVIL CON ACORDEÓN DE SEGUNDO NIVEL
    ═══════════════════════════════════════════════════════════════════ */
 
-function MobileMenu({ isOpen, onClose, isDark, toggleTheme, mounted }) {
+function MobileMenu({ isOpen, onClose, mounted }) {
   const [expandedMain, setExpandedMain] = useState(null);
 
   useEffect(() => {
@@ -183,7 +183,7 @@ function MobileMenu({ isOpen, onClose, isDark, toggleTheme, mounted }) {
               aria-label="Cerrar menú"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
@@ -230,11 +230,6 @@ function MobileMenu({ isOpen, onClose, isDark, toggleTheme, mounted }) {
                     </motion.div>
                   )}
                 </AnimatePresence>
-
-                {/* Separador excepto el último */}
-                {MAIN_NAV.indexOf(item) < MAIN_NAV.length - 1 && (
-                  <div className="w-full h-px bg-slate-800/50 my-2" aria-hidden="true" />
-                )}
               </div>
             ))}
           </nav>
@@ -248,24 +243,6 @@ function MobileMenu({ isOpen, onClose, isDark, toggleTheme, mounted }) {
             >
               Contactar
             </Link>
-            <button
-              onClick={toggleTheme}
-              className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl border border-slate-700/60 text-slate-300 active:bg-slate-800 text-sm"
-            >
-              {!mounted ? (
-                <span className="h-5 w-5 opacity-0" aria-hidden="true" />
-              ) : isDark ? (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                  Modo claro
-                </>
-              ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-                  Modo oscuro
-                </>
-              )}
-            </button>
           </div>
         </motion.div>
       )}
@@ -276,12 +253,6 @@ function MobileMenu({ isOpen, onClose, isDark, toggleTheme, mounted }) {
 /* ═══════════════════════════════════════════════════════════════════
    HEADER COMPONENT
    ═══════════════════════════════════════════════════════════════════ */
-
-function getInitialTheme() {
-  if (typeof window === 'undefined') return true;
-  const saved = localStorage.getItem('theme');
-  return saved ? saved === 'dark' : true;
-}
 
 function getInitialHash() {
   if (typeof window === 'undefined') return '';
@@ -305,7 +276,6 @@ function getServerSearch() {
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const [isDark, setIsDark] = useState(getInitialTheme);
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [hash, setHash] = useState(getInitialHash);
@@ -325,15 +295,6 @@ export function Header() {
     const handleHashChange = () => setHash(window.location.hash);
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  const toggleTheme = useCallback(() => {
-    setIsDark(prev => {
-      const newTheme = !prev;
-      localStorage.setItem('theme', newTheme ? 'dark' : 'light');
-      document.documentElement.classList.toggle('light', !newTheme);
-      return newTheme;
-    });
   }, []);
 
   const handleDropdownToggle = useCallback((label, forceOpen) => {
@@ -367,7 +328,7 @@ export function Header() {
       </header>
 
       {/* Fullscreen mobile menu overlay */}
-      <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} isDark={isDark} toggleTheme={toggleTheme} mounted={mounted} />
+      <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} mounted={mounted} />
 
       {/* ══════════ DESKTOP HEADER (visible >= md) ══════════ */}
       <motion.header
@@ -475,27 +436,6 @@ export function Header() {
                 );
               })}
             </nav>
-
-            {/* --- BOTONES DE ACCIÓN (tema) --- */}
-            <div className="flex items-center gap-3 ml-4">
-              <button 
-                onClick={toggleTheme}
-                className="p-2 rounded-full bg-slate-800/50 hover:bg-slate-700 border border-slate-700/50 hover:border-teal-500/50 transition-all group"
-                aria-label="Cambiar tema"
-              >
-                {!mounted ? (
-                  <span className="h-5 w-5 opacity-0" aria-hidden="true" />
-                ) : isDark ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-teal-400 group-hover:text-teal-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-700 group-hover:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                  </svg>
-                )}
-              </button>
-            </div>
           </div>
         </div>
       </motion.header>
