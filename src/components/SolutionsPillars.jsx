@@ -238,7 +238,7 @@ export default function SolutionsPillars() {
     <section
       ref={sectionRef}
       id="ecosistema"
-      className="relative bg-slate-950 py-24 lg:py-32 overflow-hidden"
+      className="relative bg-slate-950 py-24 lg:py-32 overflow-hidden scroll-mt-24"
     >
       {/* ── Background glows ── */}
       <div className="absolute inset-0 pointer-events-none">

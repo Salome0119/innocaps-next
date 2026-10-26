@@ -95,6 +95,28 @@
 }
 
 /* ─────────────────────────────────────────────
+   ACENTO NEÓN (#00f5d4) — Contacto
+   Variable única para el acento neón de las pestañas y las redes
+   sociales. El modo claro (`.light` sobre <html>) remapea el color
+   para mantener el contraste sobre fondo claro sin duplicar
+   utilidades Tailwind en los componentes.
+   ───────────────────────────────────────────── */
+
+:root {
+  --acento-neon: #00f5d4;
+  --acento-neon-borde: rgba(0, 245, 212, 0.55);
+  --acento-neon-tenue: rgba(0, 245, 212, 0.1);
+  --acento-neon-halo: rgba(0, 245, 212, 0.35);
+}
+
+.light {
+  --acento-neon: #0b7a72;
+  --acento-neon-borde: rgba(11, 122, 114, 0.45);
+  --acento-neon-tenue: rgba(11, 122, 114, 0.1);
+  --acento-neon-halo: rgba(11, 122, 114, 0.25);
+}
+
+/* ─────────────────────────────────────────────
    REDUCED MOTION & SMOOTH SCROLL
    ───────────────────────────────────────────── */
 
