@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import Image from 'next/image';
 import { useIsMobile } from '../hooks/useIsMobile';
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -11,15 +12,17 @@ import { useIsMobile } from '../hooks/useIsMobile';
 const STEPS = [
   {
     id: '01',
-    title: 'DECONSTRUCCIÓN DEL RETO',
+    title: 'CONOCIMIENTO DEL RETO',
     tagline: 'Diagnóstico Molecular',
     copy: 'Todo comienza analizando las propiedades fisicoquímicas y la fragilidad de tu activo. ¿Es sensible al pH? ¿Se oxida con la luz? Definimos el "Dolor Biológico" y seleccionamos la arquitectura de encapsulación ideal.',
     highlights: ['Micelas', 'Liposoma', 'Niosoma', 'SLN', 'Dendrímeros', 'Ciclodextrinas'],
     visual: 'diagnose',
+    image: '/proceso/paso-01.webp',
+    imageAlt: 'Investigadores analizando datos de nanoencapsulación en laboratorio',
   },
   {
     id: '02',
-    title: 'DISEÑO "ZERO-WASTE"',
+    title: 'DISEÑO DE LA PROPUESTA',
     tagline: 'Arquitectura de Matriz',
     copy: 'Rompemos el estándar de la industria. En lugar de añadir polímeros sintéticos no viables, evaluamos el uso de matrices intrínsecas para maximizar tus recursos.',
     bullets: [
@@ -27,6 +30,8 @@ const STEPS = [
     ],
     quote: 'Maximizamos tus recursos convirtiendo el medio de cultivo en parte de la solución.',
     visual: 'matrix',
+    image: '/proceso/paso-02.webp',
+    imageAlt: 'Diseño de la propuesta',
   },
   {
     id: '03',
@@ -39,6 +44,8 @@ const STEPS = [
     ],
     dataHighlights: ['20-900 nm'],
     visual: 'pressure',
+    image: '/proceso/paso-03.webp',
+    imageAlt: 'Forja Nanométrica',
   },
   {
     id: '04',
@@ -50,6 +57,8 @@ const STEPS = [
     ],
     dataHighlights: ['Vitrificación térmica'],
     visual: 'drying',
+    image: '/proceso/paso-04.webp',
+    imageAlt: 'Vitrificación Térmica',
   },
   {
     id: '05',
@@ -61,6 +70,8 @@ const STEPS = [
       { label: 'Resultado', detail: 'Tu fórmula queda lista para producción industrial masiva o para evolucionar mediante nuestro modelo de suscripción de I+D.' },
     ],
     visual: 'validate',
+    image: '/proceso/paso-05.webp',
+    imageAlt: 'Evidencia Visual',
   },
 ];
 
@@ -165,7 +176,7 @@ const VISUAL_MAP = {
   },
 };
 
-const StepVisual = memo(function StepVisual({ visual }) {
+const StepVisual = memo(function StepVisual({ visual, image, imageAlt }) {
   const v = VISUAL_MAP[visual] || VISUAL_MAP.diagnose;
   return (
     <div
@@ -183,7 +194,17 @@ const StepVisual = memo(function StepVisual({ visual }) {
           style={{ animation: 'process-blob-float 8s ease-in-out infinite reverse' }}
         />
       </div>
-      {v.icon}
+      {image ? (
+        <Image
+          src={image}
+          alt={imageAlt || ''}
+          fill
+          className="object-cover rounded-2xl"
+          sizes="(max-width: 768px) 100vw, 50vw"
+        />
+      ) : (
+        v.icon
+      )}
       {/* Ready for <video> or <Lottie> overlay */}
     </div>
   );
@@ -392,7 +413,7 @@ function DesktopStep({ step, index }) {
     >
       {/* Left column */}
       <div className={isOdd ? '' : 'order-3'}>
-        {isOdd ? <StepContent step={step} /> : <StepVisual visual={step.visual} />}
+        {isOdd ? <StepContent step={step} /> : <StepVisual visual={step.visual} image={step.image} imageAlt={step.imageAlt} />}
       </div>
 
       {/* Center spacer (line lives behind in CenterLine) */}
@@ -400,7 +421,7 @@ function DesktopStep({ step, index }) {
 
       {/* Right column */}
       <div className={isOdd ? 'order-3' : ''}>
-        {isOdd ? <StepVisual visual={step.visual} /> : <StepContent step={step} />}
+        {isOdd ? <StepVisual visual={step.visual} image={step.image} imageAlt={step.imageAlt} /> : <StepContent step={step} />}
       </div>
     </article>
   );
@@ -437,7 +458,7 @@ function MobileStep({ step, index, total }) {
 
         {/* Visual placeholder */}
         <div className="my-4">
-          <StepVisual visual={step.visual} />
+          <StepVisual visual={step.visual} image={step.image} imageAlt={step.imageAlt} />
         </div>
 
         {/* Content — 16px per spec */}
