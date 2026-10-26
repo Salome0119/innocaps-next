@@ -2,9 +2,10 @@
 
 import { useState, useRef, useCallback, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Environment, Float } from '@react-three/drei';
+import { Environment, Float, OrbitControls } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
 import OrganicNucleus from './OrganicNucleus';
+import NanoCapsule from './NanoCapsule';
 
 /* ═══════════════════════════════════════════
    SECTION 2 — THE 4 PILLARS OF IMPACT
@@ -108,7 +109,7 @@ const pillars = [
     label: 'Salud Humana',
     shortLabel: 'Humana',
     headline: 'Biodisponibilidad de Precisión.',
-    effectNote: 'Estructura de doble hélice y redes neuronales brillantes.',
+    effectNote: 'Cápsula tri-compartimentada de biodisponibilidad con mitocondria, matriz prebiótica y anticuerpos iluminados.',
     problem: null,
     solutions: [
       {
@@ -197,6 +198,7 @@ function FloatingParticles({ color }) {
 /* ── 3D Scene wrapper ── */
 function NucleusScene({ activePreset }) {
   const pillar = pillars.find((p) => p.id === activePreset) || pillars[2];
+  const isHuman = activePreset === 'human';
   return (
     <>
       <ambientLight intensity={0.3} />
@@ -205,11 +207,28 @@ function NucleusScene({ activePreset }) {
       <pointLight position={[3, 4, -3]} intensity={0.3} color={pillar.accent} />
 
       <Float speed={1.0} rotationIntensity={0.1} floatIntensity={0.3}>
-        <OrganicNucleus activePreset={activePreset} />
+        {isHuman ? (
+          <NanoCapsule />
+        ) : (
+          <OrganicNucleus activePreset={activePreset} />
+        )}
       </Float>
 
       <FloatingParticles color={pillar.color} />
       <Environment preset="night" />
+
+      {isHuman && (
+        <OrbitControls
+          makeDefault
+          enableDamping
+          dampingFactor={0.05}
+          enableZoom={false}
+          enablePan={false}
+          minPolarAngle={Math.PI / 5}
+          maxPolarAngle={(4 * Math.PI) / 5}
+          rotateSpeed={0.55}
+        />
+      )}
     </>
   );
 }
