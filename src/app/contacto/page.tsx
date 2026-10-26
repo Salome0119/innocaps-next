@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Header } from "@/components/Header";
 import ContactForm from "./ContactForm";
+import ContactTabs from "./ContactTabs";
 import NanoBackground from "@/components/NanoBackground";
 
 export const metadata: Metadata = {
@@ -102,69 +103,74 @@ export default function Page() {
             </p>
           </div>
 
-          {/* ── Grid: contexto estático + formulario (Suspense) ── */}
-          <div className="mt-12 grid gap-8 lg:grid-cols-2 lg:gap-10 overflow-hidden">
-            {/* Columna izquierda — tarjetas glassmorphic independientes */}
-            <div className="space-y-6">
-              <div className="section-glass relative z-10 rounded-2xl border border-teal-500/20 bg-[#031417]/80 backdrop-blur-[12px] p-6 sm:p-8">
-                <h2 className="text-lg font-light tracking-wider text-white">
-                  Cómo trabajamos
-                </h2>
+          {/* ── Selector de dos vías: formulario B2B o redes sociales ── */}
+          <div className="mt-12">
+            <ContactTabs>
+              {/* ── Grid: contexto estático + formulario (Suspense) ── */}
+              <div className="grid gap-8 lg:grid-cols-2 lg:gap-10 overflow-hidden">
+                {/* Columna izquierda — tarjetas glassmorphic independientes */}
+                <div className="space-y-6">
+                  <div className="section-glass relative z-10 rounded-2xl border border-teal-500/20 bg-[#031417]/80 backdrop-blur-[12px] p-6 sm:p-8">
+                    <h2 className="text-lg font-light tracking-wider text-white">
+                      Cómo trabajamos
+                    </h2>
 
-                <ol className="mt-6 space-y-5">
-                  {PASOS_CONTACTO.map((paso) => (
-                    <li key={paso.numero} className="flex gap-4">
-                      <span className="flex-shrink-0 flex items-center justify-center rounded-full bg-lime-500/15 border border-lime-500/30 text-teal-400 text-sm font-mono tabular-nums text-lg w-10 h-10">
-                        {paso.numero}
-                      </span>
-                      <div>
-                        <p className="text-sm font-bold text-white">
-                          {paso.titulo}
-                        </p>
-                        <p className="mt-1 text-sm leading-relaxed text-slate-400">
-                          {paso.detalle}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
+                    <ol className="mt-6 space-y-5">
+                      {PASOS_CONTACTO.map((paso) => (
+                        <li key={paso.numero} className="flex gap-4">
+                          <span className="flex-shrink-0 flex items-center justify-center rounded-full bg-lime-500/15 border border-lime-500/30 text-teal-400 text-sm font-mono tabular-nums text-lg w-10 h-10">
+                            {paso.numero}
+                          </span>
+                          <div>
+                            <p className="text-sm font-bold text-white">
+                              {paso.titulo}
+                            </p>
+                            <p className="mt-1 text-sm leading-relaxed text-slate-400">
+                              {paso.detalle}
+                            </p>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  <div className="section-glass relative z-10 rounded-2xl border border-teal-500/20 bg-[#031417]/80 backdrop-blur-[12px] p-6 sm:p-8">
+                    <h2 className="text-lg font-light tracking-wider text-white">
+                      Dos unidades, una compañía
+                    </h2>
+
+                    <dl className="mt-6 space-y-5">
+                      {UNIDADES.map((unidad) => (
+                        <div key={unidad.nombre}>
+                          <dt className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-cyan-400">
+                            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+                            {unidad.nombre}
+                          </dt>
+                          <dd className="ml-6 mt-1.5 text-sm leading-relaxed text-slate-400">
+                            {unidad.alcance}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+
+                    <p className="mt-6 border-t border-teal-500/10 pt-5 text-xs leading-relaxed text-slate-500">
+                      Usá el selector de vía del formulario para dirigir tu consulta
+                      a la unidad correspondiente: la preselección también responde
+                      a <span className="font-mono text-teal-400">?type=lab</span>,{" "}
+                      <span className="font-mono text-teal-400">?type=bio</span> y{" "}
+                      <span className="font-mono text-teal-400">?type=licensing</span>.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Columna derecha — formulario aislado en Suspense */}
+                <div className="lg:pt-2">
+                  <Suspense fallback={<ContactSkeleton />}>
+                    <ContactForm />
+                  </Suspense>
+                </div>
               </div>
-
-              <div className="section-glass relative z-10 rounded-2xl border border-teal-500/20 bg-[#031417]/80 backdrop-blur-[12px] p-6 sm:p-8">
-                <h2 className="text-lg font-light tracking-wider text-white">
-                  Dos unidades, una compañía
-                </h2>
-
-                <dl className="mt-6 space-y-5">
-                  {UNIDADES.map((unidad) => (
-                    <div key={unidad.nombre}>
-                      <dt className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-cyan-400">
-                        <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
-                        {unidad.nombre}
-                      </dt>
-                      <dd className="ml-6 mt-1.5 text-sm leading-relaxed text-slate-400">
-                        {unidad.alcance}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-
-                <p className="mt-6 border-t border-teal-500/10 pt-5 text-xs leading-relaxed text-slate-500">
-                  Usá el selector de vía del formulario para dirigir tu consulta
-                  a la unidad correspondiente: la preselección también responde
-                  a <span className="font-mono text-teal-400">?type=lab</span>,{" "}
-                  <span className="font-mono text-teal-400">?type=bio</span> y{" "}
-                  <span className="font-mono text-teal-400">?type=licensing</span>.
-                </p>
-              </div>
-            </div>
-
-            {/* Columna derecha — formulario aislado en Suspense */}
-            <div className="lg:pt-2">
-              <Suspense fallback={<ContactSkeleton />}>
-                <ContactForm />
-              </Suspense>
-            </div>
+            </ContactTabs>
           </div>
         </section>
       </main>

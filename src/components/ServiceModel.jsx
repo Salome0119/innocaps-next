@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
@@ -88,6 +89,11 @@ function PhaseConnector({ color }) {
    MAIN EXPORT
    ═══════════════════════════════════ */
 export default function ServiceModel() {
+  /* Desplazamiento suave hacia la sección "Tu Ecosistema" */
+  const handleExploreEcosystems = useCallback(() => {
+    document.getElementById('ecosistema')?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
   return (
     <section className="relative bg-slate-950 py-28 lg:py-36 overflow-hidden">
       {/* Background */}
@@ -231,12 +237,13 @@ export default function ServiceModel() {
               </svg>
             </Link>
             <span className="text-slate-600 text-sm">o</span>
-            <Link
-              href="/lab/soluciones"
+            <button
+              type="button"
+              onClick={handleExploreEcosystems}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-slate-700/50 bg-slate-900/30 text-slate-400 hover:text-white hover:border-slate-600 font-medium text-sm transition-all duration-300"
             >
               Explorar ecosistemas
-            </Link>
+            </button>
           </div>
         </motion.div>
 

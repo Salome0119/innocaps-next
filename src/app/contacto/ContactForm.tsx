@@ -162,6 +162,7 @@ export default function ContactForm() {
           className="pointer-events-none absolute inset-0 bg-gradient-to-br from-teal-500/10 via-transparent to-lime-500/5"
         />
 
+        {/* ── Aviso de estado del módulo ── */}
         {estado === "recibido" ? (
           <div
             role="status"
